@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trợ lý Pháp chế Tín dụng — Tra cứu luật vay vốn &amp; Lập hồ sơ gọi vốn</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>⚖️</text></svg>" />
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= THANH TRÊN ================= -->
+  <header class="topbar">
+    <button class="icon-btn only-mobile" id="btnBurger">☰</button>
+
+    <div class="brand">
+      <div class="brand-mark">⚖</div>
+      <div class="brand-text">
+        <div class="brand-title">Trợ lý Pháp chế Tín dụng</div>
+        <div class="brand-sub">Legal Assistant for Bank Lending</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-view="chat">
+        <span class="n">1</span><span class="lbl">Tra cứu luật</span>
+      </button>
+      <button class="nav-btn" data-view="dossier">
+        <span class="n">2</span><span class="lbl">Hồ sơ gọi vốn</span>
+      </button>
+    </nav>
+
+    <div class="topbar-spacer"></div>
+
+    <span class="pill" id="pillApi"><span class="dot"></span><span>Đang kiểm tra…</span></span>
+    <span class="pill" id="pillCorpus"><span class="dot"></span><span>0 văn bản</span></span>
+  </header>
+
+  <div class="body">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar">
+
+      <div class="card tint">
+        <div class="card-head"><h3>Kho tri thức</h3></div>
+        <div class="stat-grid">
+          <div class="stat"><div class="v" id="statDocs">0</div><div class="k">Văn bản</div></div>
+          <div class="stat"><div class="v" id="statChunks">0</div><div class="k">Điều khoản</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>Văn bản pháp luật</h3>
+          <button class="icon-btn" id="btnReindex" title="Quét lại thư mục data/raw_laws">⟳</button>
+        </div>
+
+        <label class="dropzone" id="dropzone">
+          <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md,.html,.htm" hidden />
+          <div class="dz-icon">📑</div>
+          <div class="dz-text"><b>Chọn file</b> hoặc kéo thả vào đây</div>
+          <div class="dz-hint">PDF · DOCX · TXT · MD · HTML</div>
+        </label>
+
+        <div class="uploading" id="uploading" hidden>
+          <div class="bar"><i></i></div>
+          <span id="uploadText">Đang xử lý…</span>
+        </div>
+
+        <div class="doc-list" id="docList"></div>
+        <button class="btn block sm danger" id="btnClearAll" style="margin-top:11px">Xoá toàn bộ chỉ mục</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Cấu hình mô hình</h3></div>
+        <label class="field">
+          <span>Model Groq</span>
+          <select class="ctrl" id="modelSelect"></select>
+        </label>
+        <label class="field">
+          <span>Số điều khoản trích dẫn: <b id="topkVal">6</b></span>
+          <input type="range" id="topkRange" min="2" max="14" value="6" />
+        </label>
+        <label class="field">
+          <span>Độ sáng tạo: <b id="tempVal">0.15</b></span>
+          <input type="range" id="tempRange" min="0" max="100" value="15" />
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="ragToggle" checked />
+          <span>Bắt buộc trích dẫn từ kho văn bản (RAG)</span>
+        </label>
+      </div>
+    </aside>
+
+    <!-- ================= VIEW 1: TRA CỨU LUẬT ================= -->
+    <main class="view active" id="viewChat">
+      <div class="chat-head">
+        <div class="grow">
+          <h2>Hỏi đáp pháp luật về vay vốn ngân hàng</h2>
+          <p>Điều kiện vay · Hồ sơ tín dụng · Thẩm định · Tài sản bảo đảm · Lãi suất · Giải ngân · Xử lý nợ</p>
+        </div>
+        <button class="btn sm" id="btnNewChat">＋ Hội thoại mới</button>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="composer">
+        <div class="chips" id="chips"></div>
+        <div class="composer-box">
+          <textarea id="input" rows="1" placeholder="Nhập câu hỏi pháp lý…  (Enter để gửi · Shift+Enter xuống dòng)"></textarea>
+          <button class="send" id="btnSend" title="Gửi">➤</button>
+          <button class="send stop" id="btnStop" title="Dừng" hidden>■</button>
+        </div>
+        <div class="foot-note">
+          Câu trả lời dựa trên văn bản bạn đã nạp. Luôn đối chiếu văn bản gốc trước khi áp dụng vào hồ sơ thực tế.
+        </div>
+      </div>
+    </main>
+
+    <!-- ================= VIEW 2: HỒ SƠ GỌI VỐN ================= -->
+    <main class="view" id="viewDossier">
+      <div class="ds">
+
+        <div class="ds-main">
+          <div class="ds-hero">
+            <div class="ds-hero-top">
+              <div class="grow" style="flex:1">
+                <h2>Hồ sơ đề nghị cấp tín dụng</h2>
+                <p>Nhập thông tin khoản vay → hệ thống tra cứu quy định pháp luật, bổ sung danh mục
+                   hồ sơ và căn cứ pháp lý → xuất ra file PDF hoàn chỉnh.</p>
+              </div>
+            </div>
+
+            <div class="stepper">
+              <button class="step active" data-step="1">
+                <span class="num">1</span>
+                <span class="lbl">Nhập thông tin<span class="sub">Khoản vay &amp; khách hàng</span></span>
+              </button>
+              <button class="step" data-step="2">
+                <span class="num">2</span>
+                <span class="lbl">Nội dung hồ sơ<span class="sub">Rà soát &amp; chỉnh sửa</span></span>
+              </button>
+              <button class="step" data-step="3">
+                <span class="num">3</span>
+                <span class="lbl">Xuất hồ sơ<span class="sub">Xem trước &amp; tải PDF</span></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bước 1: nhập liệu -->
+          <div class="pane active" id="pane1">
+            <div class="tip blue">
+              <span class="ti">💡</span>
+              <span>Chỉ cần điền những gì bạn đang có — để trống cũng không sao. Sau khi bấm
+                <b>Lập hồ sơ bằng AI</b>, hệ thống sẽ tra kho văn bản pháp luật để tự bổ sung
+                <b>danh mục hồ sơ phải nộp</b>, <b>căn cứ pháp lý</b> và <b>đánh giá rủi ro</b>.
+                Nếu đã trao đổi ở tab Tra cứu luật, nội dung đó cũng được dùng làm dữ liệu đầu vào.</span>
+            </div>
+            <div id="intakeForm"></div>
+          </div>
+
+          <!-- Bước 2: chi tiết -->
+          <div class="pane" id="pane2">
+            <div class="tip">
+              <span class="ti">⚠️</span>
+              <span>Nội dung do AI soạn <b>bắt buộc phải được rà soát</b> trước khi nộp cho tổ chức tín dụng.
+                Mọi trường dưới đây đều sửa được, thêm/bớt dòng tuỳ ý.</span>
+            </div>
+            <div id="detailForm"></div>
+          </div>
+
+          <!-- Bước 3: xuất -->
+          <div class="pane" id="pane3">
+            <div id="exportSummary"></div>
+          </div>
+        </div>
+
+        <!-- Cột phải -->
+        <aside class="ds-rail">
+          <div class="rail-sec">
+            <h4>Mức độ hoàn thiện</h4>
+            <div class="meter">
+              <div class="ring">
+                <svg width="96" height="96" viewBox="0 0 96 96">
+                  <circle cx="48" cy="48" r="41" fill="none" stroke="#e9eef5" stroke-width="9"/>
+                  <circle id="ringArc" cx="48" cy="48" r="41" fill="none" stroke="#2563eb" stroke-width="9"
+                          stroke-linecap="round" stroke-dasharray="258" stroke-dashoffset="258"/>
+                </svg>
+                <div class="val"><span id="ringPct">0%</span><small id="ringLbl">HOÀN THIỆN</small></div>
+              </div>
+              <div class="meter-note" id="meterNote">Hãy bắt đầu bằng việc điền thông tin khách hàng và khoản vay.</div>
+              <div class="kpi">
+                <div><b id="kpiDocs">0</b><span>Hồ sơ</span></div>
+                <div><b id="kpiLegal">0</b><span>Căn cứ</span></div>
+                <div><b id="kpiRisk">0</b><span>Rủi ro</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rail-sec">
+            <h4>Thao tác</h4>
+            <button class="btn primary block" id="btnGen">✨ Lập hồ sơ bằng AI</button>
+            <div class="btn-row" style="margin-top:8px">
+              <button class="btn sm" id="btnPreview">👁 Xem trước</button>
+              <button class="btn sm navy" id="btnExport">⬇ Xuất PDF</button>
+            </div>
+            <div class="btn-row" style="margin-top:8px">
+              <button class="btn sm" id="btnImportJson">↥ Nhập</button>
+              <button class="btn sm" id="btnExportJson">↧ Lưu</button>
+              <button class="btn sm danger" id="btnReset">🗑 Xoá</button>
+            </div>
+          </div>
+
+          <div class="rail-sec">
+            <h4>Tuỳ chọn xuất file</h4>
+            <label class="switch" style="margin-bottom:8px">
+              <input type="checkbox" id="chkChecklist" checked /><span>Kèm danh mục hồ sơ phải nộp</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="chkLegal" checked /><span>Kèm mục căn cứ pháp lý</span>
+            </label>
+          </div>
+
+          <div class="rail-sec" id="genNoteWrap" hidden>
+            <h4>Trạng thái</h4>
+            <div class="gen-note" id="genNote"></div>
+          </div>
+
+          <div class="rail-sec" id="railSrcWrap" hidden>
+            <h4>Căn cứ đã tra cứu</h4>
+            <div class="mini-src" id="railSrc"></div>
+          </div>
+        </aside>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+<div class="toasts" id="toasts"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

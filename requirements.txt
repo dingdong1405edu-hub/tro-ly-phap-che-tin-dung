@@ -1,0 +1,20 @@
+# ---- Core (bắt buộc) ----
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+groq>=0.11.0
+numpy>=1.26.0
+
+# ---- Đọc file văn bản luật ----
+pypdf>=4.2.0
+python-docx>=1.1.2
+
+# ---- Xuất PDF hồ sơ ----
+reportlab>=4.2.0
+
+# ---- Embedding chất lượng cao (TÙY CHỌN) ----
+# Nếu cài được, hệ thống tự dùng vector semantic đa ngôn ngữ.
+# Nếu KHÔNG cài, hệ thống tự fallback sang TF-IDF + BM25 (vẫn chạy tốt cho tra cứu luật).
+# pip install sentence-transformers torch

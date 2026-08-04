@@ -1,0 +1,30 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Môi trường ảo ----
+.venv/
+venv/
+env/
+
+# ---- Bí mật: KHÔNG BAO GIỜ commit ----
+.env
+.env.local
+.env.*.local
+
+# ---- Dữ liệu sinh ra khi chạy ----
+data/index/
+data/exports/
+data/raw_laws/
+
+# ---- IDE / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
