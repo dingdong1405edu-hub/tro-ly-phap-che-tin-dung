@@ -11,6 +11,10 @@ có **RAG** để trả lời kèm trích dẫn Điều — Khoản từ chính 
 └──────────────┴────────────────────────────┴──────────────────┘
 ```
 
+> **🌐 Bản đang chạy:** https://web-production-6a7ed.up.railway.app
+> Mỗi lần đẩy code lên nhánh `main`, Railway tự build và deploy lại.
+> Hướng dẫn triển khai chi tiết: [DEPLOY.md](DEPLOY.md)
+
 ---
 
 ## 1. Chạy trong 3 bước
