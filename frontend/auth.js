@@ -338,6 +338,10 @@
         await vaoUngDung(state.trangThai.nguoi_dung);
       } else {
         state.cheDo = state.trangThai.da_co_tai_khoan ? "login" : "register";
+        // Trang giới thiệu dẫn sang bằng /app#dangky hoặc /app#dangnhap
+        const bam = (location.hash || "").toLowerCase();
+        if (bam.indexOf("dangky") >= 0 && state.trangThai.cho_phep_dang_ky) state.cheDo = "register";
+        else if (bam.indexOf("dangnhap") >= 0 && state.trangThai.da_co_tai_khoan) state.cheDo = "login";
         khoa();
       }
     },

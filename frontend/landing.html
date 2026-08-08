@@ -114,9 +114,12 @@
         <svg class="ic ico-sun"><use href="#i-sun"/></svg>
         <svg class="ic ico-moon"><use href="#i-moon"/></svg>
       </button>
-      <a class="btn primary" href="/app">
-        Mở ứng dụng <svg class="ic ic-xs"><use href="#i-arrow-right"/></svg>
-      </a>
+      <!-- Khu tài khoản — script cuối trang điền theo trạng thái phiên đăng nhập -->
+      <div class="lnav-auth" id="lnavAuth">
+        <a class="btn primary" href="/app">
+          Mở ứng dụng <svg class="ic ic-xs"><use href="#i-arrow-right"/></svg>
+        </a>
+      </div>
     </div>
   </div>
 </header>
@@ -133,7 +136,7 @@
         thẩm định do Python tính bằng công thức tường minh, không do model sinh ra.
       </p>
 
-      <div class="hero-cta">
+      <div class="hero-cta" id="heroCta">
         <a class="btn primary lg" href="/app">
           Mở ứng dụng <svg class="ic ic-sm"><use href="#i-arrow-right"/></svg>
         </a>
@@ -515,6 +518,56 @@ GROQ_API_KEY=gsk_...
     root.setAttribute("data-theme", t);
     try { localStorage.setItem("tctd-theme", t); } catch (e) {}
   });
+})();
+
+/* Khu tài khoản trên thanh điều hướng.
+   Chưa đăng nhập  -> Đăng nhập · Tạo tài khoản
+   Đã đăng nhập    -> tên người dùng · Vào ứng dụng · Đăng xuất
+   Chưa có tài khoản nào -> mời lập quản trị viên đầu tiên. */
+(function () {
+  var hop = document.getElementById("lnavAuth");
+  if (!hop) return;
+  var MUI_TEN = '<svg class="ic ic-xs"><use href="#i-arrow-right"/></svg>';
+
+  function ve(tt) {
+    if (tt && tt.dang_nhap && tt.nguoi_dung) {
+      var u = tt.nguoi_dung;
+      var ten = (u.ho_ten || u.username || "").replace(/[<>&"]/g, "");
+      hop.innerHTML =
+        '<span class="lnav-user" title="Đang đăng nhập">' +
+          '<span class="av">' + (ten.charAt(0).toUpperCase() || "?") + "</span>" +
+          "<b>" + ten + "</b>" +
+        "</span>" +
+        '<a class="btn primary" href="/app">Vào ứng dụng ' + MUI_TEN + "</a>" +
+        '<button class="btn" type="button" id="lbtnOut">Đăng xuất</button>';
+
+      document.getElementById("lbtnOut").onclick = function () {
+        var nut = this;
+        nut.disabled = true;
+        nut.textContent = "Đang thoát…";
+        fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+          .then(function () { location.reload(); })
+          .catch(function () { location.reload(); });
+      };
+      return;
+    }
+
+    if (tt && !tt.da_co_tai_khoan) {
+      hop.innerHTML = '<a class="btn primary" href="/app">Lập tài khoản quản trị ' + MUI_TEN + "</a>";
+      return;
+    }
+
+    hop.innerHTML =
+      '<a class="btn" href="/app#dangnhap">Đăng nhập</a>' +
+      (tt && tt.cho_phep_dang_ky
+        ? '<a class="btn primary" href="/app#dangky">Tạo tài khoản</a>'
+        : '<a class="btn primary" href="/app">Mở ứng dụng ' + MUI_TEN + "</a>");
+  }
+
+  fetch("/api/auth/status", { credentials: "same-origin" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(ve)
+    .catch(function () { /* mất mạng: giữ nguyên nút "Mở ứng dụng" mặc định */ });
 })();
 </script>
 </body>
