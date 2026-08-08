@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .auth import service as auth_service
 from .auth.data_router import router as data_router
-from .auth.deps import yeu_cau_dang_nhap, yeu_cau_quan_tri
+from .auth.deps import yeu_cau_dang_nhap
 from .auth.models import NguoiDung
 from .auth.router import router as auth_router
 from .config import settings
@@ -101,8 +101,9 @@ def models() -> dict:
 
 # ------------------------------------------------------------- kho văn bản
 #
-# Kho văn bản pháp luật dùng chung cho cả hệ thống: ai đăng nhập cũng tra cứu
-# được, nhưng chỉ quản trị viên mới được nạp thêm hay xoá đi.
+# Kho văn bản pháp luật dùng chung cho cả hệ thống. Mọi tài khoản đã đăng nhập
+# đều được nạp thêm và xoá bớt — không nạp được văn bản luật thì phần lập hồ sơ
+# vay vốn chạy rỗng, không có căn cứ pháp lý để trích dẫn.
 
 
 @app.get("/api/documents", response_model=list[DocumentInfo], dependencies=[Depends(yeu_cau_dang_nhap)])
@@ -111,7 +112,7 @@ def list_documents() -> list[DocumentInfo]:
     return [DocumentInfo(**d) for d in store.documents.values()]
 
 
-@app.post("/api/documents/upload", response_model=IngestResult, dependencies=[Depends(yeu_cau_quan_tri)])
+@app.post("/api/documents/upload", response_model=IngestResult, dependencies=[Depends(yeu_cau_dang_nhap)])
 async def upload_documents(files: list[UploadFile] = File(...)) -> IngestResult:
     result = IngestResult(ok=True)
     store = pipeline.get_store()
@@ -136,13 +137,13 @@ async def upload_documents(files: list[UploadFile] = File(...)) -> IngestResult:
     return result
 
 
-@app.post("/api/documents/reindex", response_model=IngestResult, dependencies=[Depends(yeu_cau_quan_tri)])
+@app.post("/api/documents/reindex", response_model=IngestResult, dependencies=[Depends(yeu_cau_dang_nhap)])
 def reindex(rebuild: bool = Query(True, description="Xoá chỉ mục cũ rồi nạp lại toàn bộ thư mục")) -> IngestResult:
     """Quét lại thư mục data/raw_laws — dùng khi bạn copy file luật thẳng vào thư mục."""
     return pipeline.ingest_directory(rebuild=rebuild)
 
 
-@app.delete("/api/documents/{doc_id}", dependencies=[Depends(yeu_cau_quan_tri)])
+@app.delete("/api/documents/{doc_id}", dependencies=[Depends(yeu_cau_dang_nhap)])
 def delete_document(doc_id: str, delete_file: bool = Query(True)) -> dict:
     ok = pipeline.delete_document(doc_id, delete_file=delete_file)
     if not ok:
@@ -150,7 +151,7 @@ def delete_document(doc_id: str, delete_file: bool = Query(True)) -> dict:
     return {"ok": True, **pipeline.get_store().stats()}
 
 
-@app.delete("/api/documents", dependencies=[Depends(yeu_cau_quan_tri)])
+@app.delete("/api/documents", dependencies=[Depends(yeu_cau_dang_nhap)])
 def clear_documents(delete_files: bool = Query(False)) -> dict:
     pipeline.purge_all(delete_files=delete_files)
     return {"ok": True, **pipeline.get_store().stats()}
