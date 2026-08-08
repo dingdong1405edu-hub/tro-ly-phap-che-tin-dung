@@ -22,6 +22,11 @@ data/index/
 data/exports/
 data/raw_laws/
 
+# ---- CSDL tài khoản: chứa băm mật khẩu và token phiên, TUYỆT ĐỐI KHÔNG commit ----
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
 # ---- IDE / OS ----
 .vscode/
 .idea/

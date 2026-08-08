@@ -7,25 +7,33 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Iterator
 
-from fastapi import Body, FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import Body, Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
+from .auth import service as auth_service
+from .auth.data_router import router as data_router
+from .auth.deps import yeu_cau_dang_nhap, yeu_cau_quan_tri
+from .auth.models import NguoiDung
+from .auth.router import router as auth_router
 from .config import settings
 from .llm import groq_client
 from .pdfout.dossier_pdf import build_dossier_pdf, safe_filename
 from .rag import pipeline
+from .samples import ho_so_mau, thong_tin_mau
 from .schemas import (
     ChatRequest,
     DocumentInfo,
     Dossier,
     DossierExportRequest,
     DossierGenerateRequest,
+    DossierPipelineRequest,
     IngestResult,
+    ReadinessRequest,
     SearchRequest,
 )
-from .services import chat_service, dossier_service
+from .services import chat_service, dossier_pipeline, dossier_service, readiness
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,10 +45,13 @@ logger = logging.getLogger("app")
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     settings.ensure_dirs()
+    auth_service.bootstrap_admin()
     store = pipeline.get_store()
     logger.info("Sẵn sàng. Chỉ mục: %s", store.stats())
     if not groq_client.has_api_key():
         logger.warning("CHƯA CÓ GROQ_API_KEY — phần chat sẽ báo lỗi cho tới khi cấu hình .env")
+    if auth_service.dem_nguoi_dung() == 0:
+        logger.warning("CHƯA CÓ TÀI KHOẢN NÀO — người đăng ký đầu tiên sẽ là quản trị viên.")
     yield
 
 
@@ -59,12 +70,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Tài khoản, phiên đăng nhập và dữ liệu riêng của từng người dùng
+app.include_router(auth_router)
+app.include_router(data_router)
+
 
 # ------------------------------------------------------------------ hệ thống
 
 
 @app.get("/api/health")
 def health() -> dict:
+    """Công khai — Railway gọi endpoint này để kiểm tra container còn sống."""
     store = pipeline.get_store()
     return {
         "ok": True,
@@ -76,7 +92,7 @@ def health() -> dict:
     }
 
 
-@app.get("/api/models")
+@app.get("/api/models", dependencies=[Depends(yeu_cau_dang_nhap)])
 def models() -> dict:
     if not groq_client.has_api_key():
         return {"models": [settings.groq_model], "current": settings.groq_model, "has_api_key": False}
@@ -84,15 +100,18 @@ def models() -> dict:
 
 
 # ------------------------------------------------------------- kho văn bản
+#
+# Kho văn bản pháp luật dùng chung cho cả hệ thống: ai đăng nhập cũng tra cứu
+# được, nhưng chỉ quản trị viên mới được nạp thêm hay xoá đi.
 
 
-@app.get("/api/documents", response_model=list[DocumentInfo])
+@app.get("/api/documents", response_model=list[DocumentInfo], dependencies=[Depends(yeu_cau_dang_nhap)])
 def list_documents() -> list[DocumentInfo]:
     store = pipeline.get_store()
     return [DocumentInfo(**d) for d in store.documents.values()]
 
 
-@app.post("/api/documents/upload", response_model=IngestResult)
+@app.post("/api/documents/upload", response_model=IngestResult, dependencies=[Depends(yeu_cau_quan_tri)])
 async def upload_documents(files: list[UploadFile] = File(...)) -> IngestResult:
     result = IngestResult(ok=True)
     store = pipeline.get_store()
@@ -117,13 +136,13 @@ async def upload_documents(files: list[UploadFile] = File(...)) -> IngestResult:
     return result
 
 
-@app.post("/api/documents/reindex", response_model=IngestResult)
+@app.post("/api/documents/reindex", response_model=IngestResult, dependencies=[Depends(yeu_cau_quan_tri)])
 def reindex(rebuild: bool = Query(True, description="Xoá chỉ mục cũ rồi nạp lại toàn bộ thư mục")) -> IngestResult:
     """Quét lại thư mục data/raw_laws — dùng khi bạn copy file luật thẳng vào thư mục."""
     return pipeline.ingest_directory(rebuild=rebuild)
 
 
-@app.delete("/api/documents/{doc_id}")
+@app.delete("/api/documents/{doc_id}", dependencies=[Depends(yeu_cau_quan_tri)])
 def delete_document(doc_id: str, delete_file: bool = Query(True)) -> dict:
     ok = pipeline.delete_document(doc_id, delete_file=delete_file)
     if not ok:
@@ -131,13 +150,13 @@ def delete_document(doc_id: str, delete_file: bool = Query(True)) -> dict:
     return {"ok": True, **pipeline.get_store().stats()}
 
 
-@app.delete("/api/documents")
+@app.delete("/api/documents", dependencies=[Depends(yeu_cau_quan_tri)])
 def clear_documents(delete_files: bool = Query(False)) -> dict:
     pipeline.purge_all(delete_files=delete_files)
     return {"ok": True, **pipeline.get_store().stats()}
 
 
-@app.post("/api/search")
+@app.post("/api/search", dependencies=[Depends(yeu_cau_dang_nhap)])
 def search(req: SearchRequest) -> dict:
     hits = chat_service.retrieve(req.query, top_k=req.top_k or settings.top_k)
     return {"query": req.query, "sources": [s.model_dump() for s in chat_service.hits_to_sources(hits)]}
@@ -150,7 +169,7 @@ def _sse(event: str, data: dict) -> str:
     return f"data: {json.dumps({'type': event, **data}, ensure_ascii=False)}\n\n"
 
 
-@app.post("/api/chat/stream")
+@app.post("/api/chat/stream", dependencies=[Depends(yeu_cau_dang_nhap)])
 def chat_stream(req: ChatRequest) -> StreamingResponse:
     if not req.messages:
         raise HTTPException(status_code=400, detail="Thiếu nội dung tin nhắn")
@@ -181,7 +200,7 @@ def chat_stream(req: ChatRequest) -> StreamingResponse:
     )
 
 
-@app.post("/api/chat")
+@app.post("/api/chat", dependencies=[Depends(yeu_cau_dang_nhap)])
 def chat(req: ChatRequest) -> dict:
     if not req.messages:
         raise HTTPException(status_code=400, detail="Thiếu nội dung tin nhắn")
@@ -197,7 +216,7 @@ def chat(req: ChatRequest) -> dict:
 # ------------------------------------------------------------ hồ sơ vay vốn
 
 
-@app.post("/api/dossier/generate")
+@app.post("/api/dossier/generate", dependencies=[Depends(yeu_cau_dang_nhap)])
 def generate_dossier(req: DossierGenerateRequest) -> dict:
     if not groq_client.has_api_key():
         raise HTTPException(status_code=503, detail=groq_client.MISSING_KEY_MSG)
@@ -209,20 +228,99 @@ def generate_dossier(req: DossierGenerateRequest) -> dict:
     return {"dossier": dossier.model_dump(), "sources": [s.model_dump() for s in sources]}
 
 
+@app.post("/api/dossier/pipeline/stream", dependencies=[Depends(yeu_cau_dang_nhap)])
+def dossier_pipeline_stream(req: DossierPipelineRequest) -> StreamingResponse:
+    """Chạy trọn quy trình lập hồ sơ, phát tiến độ từng chặng qua SSE."""
+    if not groq_client.has_api_key():
+        raise HTTPException(status_code=503, detail=groq_client.MISSING_KEY_MSG)
+
+    def generate() -> Iterator[str]:
+        try:
+            for su_kien in dossier_pipeline.chay(req):
+                yield su_kien.sse()
+        except Exception as exc:
+            logger.exception("Lỗi pipeline hồ sơ")
+            yield _sse("error", {"message": str(exc)})
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+    )
+
+
+@app.post("/api/dossier/pipeline", dependencies=[Depends(yeu_cau_dang_nhap)])
+def dossier_pipeline_sync(req: DossierPipelineRequest) -> dict:
+    """Bản chạy một lần, dùng khi client không đọc được SSE."""
+    if not groq_client.has_api_key():
+        raise HTTPException(status_code=503, detail=groq_client.MISSING_KEY_MSG)
+    try:
+        return dossier_pipeline.chay_dong_bo(req)
+    except Exception as exc:
+        logger.exception("Lỗi pipeline hồ sơ")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/api/dossier/readiness", dependencies=[Depends(yeu_cau_dang_nhap)])
+def dossier_readiness(req: ReadinessRequest) -> dict:
+    """Cổng kiểm tra đầu vào — giao diện gọi mỗi khi khách sửa hồ sơ."""
+    bao_cao = dossier_pipeline.kiem_tra_nhanh(req.dossier_hien_tai, req.huong_dan_them)
+    return bao_cao.model_dump()
+
+
+@app.get("/api/dossier/required-docs", dependencies=[Depends(yeu_cau_dang_nhap)])
+def required_docs(loai_hinh: str = Query("", description="Loại hình khách hàng")) -> dict:
+    """Danh mục giấy tờ tối thiểu theo loại hình khách hàng."""
+    danh_muc = readiness.danh_muc_giay_to(loai_hinh)
+    return {
+        "loai_hinh": loai_hinh,
+        "la_ca_nhan": readiness.la_ca_nhan(loai_hinh),
+        "giay_to": [g.model_dump() for g in danh_muc],
+    }
+
+
+# --------------------------------------------------------------- hồ sơ mẫu
+
+
+@app.get("/api/dossier/sample", dependencies=[Depends(yeu_cau_dang_nhap)])
+def dossier_sample() -> dict:
+    """Hồ sơ vay vốn mẫu đầy đủ: thẩm định giá trị doanh nghiệp, biểu đồ, checklist."""
+    return {"dossier": ho_so_mau().model_dump(), "tom_tat": thong_tin_mau()}
+
+
+@app.get("/api/dossier/sample/pdf", dependencies=[Depends(yeu_cau_dang_nhap)])
+def dossier_sample_pdf() -> Response:
+    pdf_bytes = build_dossier_pdf(ho_so_mau())
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="Ho-so-vay-von-mau.pdf"'},
+    )
+
+
 @app.post("/api/dossier/export")
-def export_dossier(req: DossierExportRequest) -> Response:
+def export_dossier(
+    req: DossierExportRequest,
+    nguoi_dung: NguoiDung = Depends(yeu_cau_dang_nhap),
+) -> Response:
     try:
         pdf_bytes = build_dossier_pdf(
             req.dossier,
             include_legal=req.kem_can_cu_phap_ly,
             include_checklist=req.kem_checklist,
+            include_appraisal=req.kem_tham_dinh,
+            include_charts=req.kem_bieu_do,
         )
     except Exception as exc:
         logger.exception("Lỗi xuất PDF")
         raise HTTPException(status_code=500, detail=f"Không xuất được PDF: {exc}") from exc
 
+    # Lưu lại một bản trên đĩa, tách theo tài khoản để hai người trùng tên khách
+    # hàng không ghi đè file của nhau.
     name = safe_filename(req.dossier, req.ten_file)
-    (settings.export_dir / name).write_bytes(pdf_bytes)  # lưu lại 1 bản trên máy
+    thu_muc = settings.export_dir / f"u{nguoi_dung.id}"
+    thu_muc.mkdir(parents=True, exist_ok=True)
+    (thu_muc / name).write_bytes(pdf_bytes)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -233,7 +331,7 @@ def export_dossier(req: DossierExportRequest) -> Response:
     )
 
 
-@app.post("/api/dossier/preview")
+@app.post("/api/dossier/preview", dependencies=[Depends(yeu_cau_dang_nhap)])
 def preview_dossier(dossier: Dossier = Body(...)) -> Response:
     """Xem nhanh PDF ngay trong trình duyệt (không tải về)."""
     try:
@@ -249,8 +347,18 @@ if settings.frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(settings.frontend_dir)), name="static")
 
     @app.get("/", include_in_schema=False)
+    def landing() -> FileResponse:
+        """Trang giới thiệu."""
+        return FileResponse(str(settings.frontend_dir / "landing.html"))
+
+    @app.get("/app", include_in_schema=False)
     def index() -> FileResponse:
+        """Ứng dụng: tra cứu luật · lập hồ sơ · hồ sơ mẫu."""
         return FileResponse(str(settings.frontend_dir / "index.html"))
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon() -> FileResponse:
+        return FileResponse(str(settings.frontend_dir / "favicon.svg"), media_type="image/svg+xml")
 else:  # pragma: no cover
 
     @app.get("/", include_in_schema=False)

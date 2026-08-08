@@ -3,32 +3,124 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Trợ lý Pháp chế Tín dụng — Tra cứu luật vay vốn &amp; Lập hồ sơ gọi vốn</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>⚖️</text></svg>" />
+<title>Trợ lý Pháp chế Tín dụng — Tra cứu luật &amp; Lập hồ sơ vay vốn</title>
+<meta name="description" content="Tra cứu quy định pháp luật về vay vốn ngân hàng có trích dẫn Điều — Khoản và lập hồ sơ đề nghị cấp tín dụng." />
+<meta name="theme-color" content="#14315c" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)" />
+<link rel="icon" href="/static/favicon.svg" />
+
+<!-- Chọn giao diện sáng/tối trước khi vẽ để không bị nháy màu -->
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("tctd-theme");
+    if (t !== "light" && t !== "dark")
+      t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" />
+<link rel="stylesheet" href="/static/base.css" />
 <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3.2v17.6M7.5 20.8h9M3.4 7.1h3.1c2 0 4.3-.7 5.5-1.6 1.2.9 3.5 1.6 5.5 1.6h3.1"/><path d="m3.2 15.4 3-7.6 3 7.6a4.4 4.4 0 0 1-6 0Zm11.6 0 3-7.6 3 7.6a4.4 4.4 0 0 1-6 0Z"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8Z"/><path d="M14 3v5h5M8.8 12.8h6.4M8.8 16.4h4.2"/></symbol>
+<symbol id="i-files" viewBox="0 0 24 24"><path d="M15.5 7.5H9A2.5 2.5 0 0 0 6.5 10v9A2.5 2.5 0 0 0 9 21.5h6.5A2.5 2.5 0 0 0 18 19v-8Z"/><path d="M15.5 7.5V11H18M14 4.2A2.5 2.5 0 0 0 11.7 2.5H6A2.5 2.5 0 0 0 3.5 5v10c0 .9.5 1.7 1.2 2.1"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.2 7.4A2 2 0 0 1 5.2 5.4h3.5a2 2 0 0 1 1.6.8l1 1.4h7.5a2 2 0 0 1 2 2v8.4a2 2 0 0 1-2 2H5.2a2 2 0 0 1-2-2Z"/></symbol>
+<symbol id="i-clipboard" viewBox="0 0 24 24"><path d="M9 4.4H7.4A2.4 2.4 0 0 0 5 6.8v11.8a2.4 2.4 0 0 0 2.4 2.4h9.2a2.4 2.4 0 0 0 2.4-2.4V6.8a2.4 2.4 0 0 0-2.4-2.4H15"/><rect x="9" y="2.6" width="6" height="3.6" rx="1.2"/><path d="m9.6 13.8 1.9 1.9 3.5-4"/></symbol>
+<symbol id="i-checklist" viewBox="0 0 24 24"><path d="m3.4 6.5 1.5 1.5 2.9-3M3.4 12.5l1.5 1.5 2.9-3M3.4 18.5l1.5 1.5 2.9-3M11.5 6.2h9.1M11.5 12.2h9.1M11.5 18.2h9.1"/></symbol>
+<symbol id="i-bank" viewBox="0 0 24 24"><path d="M12 3 3 7.8h18ZM3 20.8h18M5 10.4v8.2M9.4 10.4v8.2M14.6 10.4v8.2M19 10.4v8.2"/></symbol>
+<symbol id="i-building" viewBox="0 0 24 24"><path d="M3.6 20.8V5.2a2 2 0 0 1 2-2h6.6a2 2 0 0 1 2 2v15.6M14.2 9.6h3.9a2 2 0 0 1 2 2v9.2M2.4 20.8h19.2M7 7.4h3.4M7 11.4h3.4M7 15.4h3.4"/></symbol>
+<symbol id="i-money" viewBox="0 0 24 24"><rect x="2.6" y="5.6" width="18.8" height="12.8" rx="2.2"/><circle cx="12" cy="12" r="2.7"/><path d="M6.2 10v4M17.8 10v4"/></symbol>
+<symbol id="i-trending" viewBox="0 0 24 24"><path d="m3.2 17.4 6.4-6.4 3.6 3.6 7.6-7.6"/><path d="M15.2 7h5.6v5.6"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3.4 3.6v16.8h17.2"/><path d="M7.4 16.6v-4M11.8 16.6V7.8M16.2 16.6v-6.4"/></symbol>
+<symbol id="i-calculator" viewBox="0 0 24 24"><rect x="5" y="2.8" width="14" height="18.4" rx="2.4"/><path d="M8.4 7h7.2M8.6 11.6h.02M12 11.6h.02M15.4 11.6h.02M8.6 15.1h.02M12 15.1h.02M15.4 15.1h.02M8.6 18.2h.02M12 18.2h.02M15.4 18.2h.02"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m20.4 20.4-4.8-4.8"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.6 12a8.6 8.6 0 1 1-2.5-6.1"/><path d="M20.8 3.4v5.4h-5.4"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.8" y="8.8" width="11.6" height="11.6" rx="2.2"/><path d="M5.4 15.2H5A1.6 1.6 0 0 1 3.4 13.6V5.2A1.6 1.6 0 0 1 5 3.6h8.4A1.6 1.6 0 0 1 15 5.2v.4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.7"/><path d="M4.6 20.4a7.4 7.4 0 0 1 14.8 0"/></symbol>
+<symbol id="i-paperclip" viewBox="0 0 24 24"><path d="M20.2 11.6 12 19.8a4.9 4.9 0 0 1-7-7l8.2-8.2a3.3 3.3 0 0 1 4.6 4.6l-8.1 8.1a1.6 1.6 0 0 1-2.3-2.3l7.5-7.4"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m10 3 1.9 5L17 9.9l-5.1 1.9L10 16.9 8.1 11.8 3 9.9 8.1 8Z"/><path d="m17.6 14.4.9 2.5 2.5.9-2.5.9-.9 2.5-.9-2.5-2.5-.9 2.5-.9Z"/></symbol>
+<symbol id="i-bot" viewBox="0 0 24 24"><rect x="3.6" y="8" width="16.8" height="12.4" rx="3.2"/><path d="M12 4.6V8"/><circle cx="12" cy="3.2" r="1.3"/><path d="M9.2 13.2v1.6M14.8 13.2v1.6M9.6 17.6h4.8M1.4 13v3M22.6 13v3"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.8 4.6 5.6v6.1c0 4.6 3 8.3 7.4 9.5 4.4-1.2 7.4-4.9 7.4-9.5V5.6Z"/><path d="m8.9 11.8 2.3 2.3 4-4.4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.6" y="10.2" width="14.8" height="10.4" rx="2.4"/><path d="M8.2 10.2V7.4a3.8 3.8 0 0 1 7.6 0v2.8"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 2.5 17.4a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9.2v4.6M12 17.2h.02"/></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.8"/><path d="m8 12.3 2.7 2.7L16.2 9.4"/></symbol>
+<symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.8"/><path d="m5.8 5.8 12.4 12.4"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.8"/><path d="M12 11.2v5.2M12 7.9h.02"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9.4 18.4h5.2M10.4 21.2h3.2"/><path d="M12 2.8a6.2 6.2 0 0 0-3.7 11.2c.7.5 1.1 1.3 1.2 2.1h5c.1-.8.5-1.6 1.2-2.1A6.2 6.2 0 0 0 12 2.8Z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.4 12S6 5.6 12 5.6 21.6 12 21.6 12 18 18.4 12 18.4 2.4 12 2.4 12Z"/><circle cx="12" cy="12" r="3.1"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3.4v12.2M7.4 11.2 12 15.8l4.6-4.6M4.4 20.4h15.2"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 20.6V8.4M7.4 12.8 12 8.2l4.6 4.6M4.4 3.6h15.2"/></symbol>
+<symbol id="i-upload-cloud" viewBox="0 0 24 24"><path d="M12 19.6v-8.2M8.6 14.4 12 11l3.4 3.4"/><path d="M7.2 17.6a4.7 4.7 0 0 1 .4-9.3 5.7 5.7 0 0 1 10.9 1.7 4.2 4.2 0 0 1-.5 8"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3.8 6.6h16.4M9.2 6.6V4.9a1.4 1.4 0 0 1 1.4-1.4h2.8a1.4 1.4 0 0 1 1.4 1.4v1.7"/><path d="m6.2 6.6.9 12.6a2 2 0 0 0 2 1.9h5.8a2 2 0 0 0 2-1.9l.9-12.6M10.4 10.8v6.4M13.6 10.8v6.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4.6v14.8M4.6 12h14.8"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m4.6 12.6 5 5L19.4 6.6"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10.6 13.4"/><path d="M21 3 14.4 21.2l-3.8-7.8L2.8 9.6Z"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.4" y="6.4" width="11.2" height="11.2" rx="2"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7.8 4.8 19 12 7.8 19.2Z"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M3.6 7h16.8M3.6 12h16.8M3.6 17h16.8"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.1"/><path d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.4 14.6A8.8 8.8 0 0 1 9.4 3.6a8.8 8.8 0 1 0 11 11Z"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.2 2.75 5.57 6.15.9-4.45 4.33 1.05 6.12L12 17.24l-5.5 2.88 1.05-6.12L3.1 9.67l6.15-.9Z"/></symbol>
+<symbol id="i-table" viewBox="0 0 24 24"><rect x="3.4" y="4.4" width="17.2" height="15.2" rx="2.2"/><path d="M3.4 9.6h17.2M9.6 9.6v10M15 9.6v10"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4.4 4.6a1.8 1.8 0 0 1 1.8-1.8h11.4a1.8 1.8 0 0 1 1.8 1.8v14.8H6.6a2.2 2.2 0 0 1-2.2-2.2Z"/><path d="M4.4 17.2a2.2 2.2 0 0 1 2.2-2.2h12.8M8.6 7.4h6.4"/></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6.4 9.4 5.6 5.6 5.6-5.6"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9.4 6.4 5.6 5.6-5.6 5.6"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M3.8 12h16M13.6 5.6 20 12l-6.4 6.4"/></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M20.2 12h-16M10.4 5.6 4 12l6.4 6.4"/></symbol>
+<symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.4"/></symbol>
+<symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-loader" viewBox="0 0 24 24"><path d="M12 3.2v3.6M12 17.2v3.6M4.8 4.8l2.5 2.5M16.7 16.7l2.5 2.5M3.2 12h3.6M17.2 12h3.6M4.8 19.2l2.5-2.5M16.7 7.3l2.5-2.5"/></symbol>
+<symbol id="i-external" viewBox="0 0 24 24"><path d="M14 3.6h6.4V10M20.4 3.6 11.2 12.8"/><path d="M18 14v4.6a2 2 0 0 1-2 2H5.6a2 2 0 0 1-2-2V8.2a2 2 0 0 1 2-2h4.6"/></symbol>
+<symbol id="i-quote" viewBox="0 0 24 24"><path d="M9.4 6.2c-2.9 1-4.6 3.4-4.6 6.6v5h5.4v-5.4H7.4c0-1.9.8-3.2 2.6-4Zm9.4 0c-2.9 1-4.6 3.4-4.6 6.6v5h5.4v-5.4h-2.8c0-1.9.8-3.2 2.6-4Z"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 8.4 4.4L12 11.8 3.6 7.4Z"/><path d="m3.6 12.2 8.4 4.4 8.4-4.4M3.6 16.8 12 21.2l8.4-4.4"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><circle cx="5.6" cy="5.6" r="2.6"/><circle cx="18.4" cy="18.4" r="2.6"/><path d="M8.4 5.6h6.2a3.4 3.4 0 0 1 0 6.8H9.4a3.4 3.4 0 0 0 0 6.8h6.2"/></symbol>
+<symbol id="i-terminal" viewBox="0 0 24 24"><rect x="2.8" y="4.2" width="18.4" height="15.6" rx="2.4"/><path d="m7.4 9.6 2.8 2.6-2.8 2.6M12.8 15.2h4"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3.4 8.4V6.2a2.8 2.8 0 0 1 2.8-2.8h2.2M15.6 3.4h2.2a2.8 2.8 0 0 1 2.8 2.8v2.2M20.6 15.6v2.2a2.8 2.8 0 0 1-2.8 2.8h-2.2M8.4 20.6H6.2a2.8 2.8 0 0 1-2.8-2.8v-2.2M3.4 12h17.2"/></symbol>
+</defs></svg>
 
 <div class="app">
 
   <!-- ================= THANH TRÊN ================= -->
   <header class="topbar">
-    <button class="icon-btn only-mobile" id="btnBurger">☰</button>
+    <button class="icon-btn only-mobile" id="btnBurger" aria-label="Mở bảng bên">
+      <svg class="ic"><use href="#i-menu"/></svg>
+    </button>
 
-    <div class="brand">
-      <div class="brand-mark">⚖</div>
-      <div class="brand-text">
-        <div class="brand-title">Trợ lý Pháp chế Tín dụng</div>
-        <div class="brand-sub">Legal Assistant for Bank Lending</div>
-      </div>
-    </div>
+    <a class="brand" href="/" title="Về trang giới thiệu">
+      <span class="brand-mark"><svg class="ic ic-lg"><use href="#i-scale"/></svg></span>
+      <span class="brand-text">
+        <span class="brand-title">Trợ lý Pháp chế Tín dụng</span>
+        <span class="brand-sub">Legal assistant for bank lending</span>
+      </span>
+    </a>
 
-    <nav class="nav">
+    <nav class="nav" aria-label="Khu vực làm việc">
       <button class="nav-btn active" data-view="chat">
-        <span class="n">1</span><span class="lbl">Tra cứu luật</span>
+        <span class="n"><svg class="ic ic-sm"><use href="#i-search"/></svg></span>
+        <span class="lbl">Tra cứu luật</span>
       </button>
       <button class="nav-btn" data-view="dossier">
-        <span class="n">2</span><span class="lbl">Hồ sơ gọi vốn</span>
+        <span class="n"><svg class="ic ic-sm"><use href="#i-clipboard"/></svg></span>
+        <span class="lbl">Hồ sơ vay vốn</span>
+      </button>
+      <button class="nav-btn" data-view="sample">
+        <span class="n"><svg class="ic ic-sm"><use href="#i-star"/></svg></span>
+        <span class="lbl">Hồ sơ mẫu</span>
+      </button>
+      <button class="nav-btn" data-view="data">
+        <span class="n"><svg class="ic ic-sm"><use href="#i-folder"/></svg></span>
+        <span class="lbl">Dữ liệu</span>
       </button>
     </nav>
 
@@ -36,32 +128,68 @@
 
     <span class="pill" id="pillApi"><span class="dot"></span><span>Đang kiểm tra…</span></span>
     <span class="pill" id="pillCorpus"><span class="dot"></span><span>0 văn bản</span></span>
+
+    <button class="icon-btn" id="btnTheme" type="button" title="Đổi giao diện sáng / tối"
+            aria-label="Đổi giao diện sáng / tối">
+      <svg class="ic ico-sun"><use href="#i-sun"/></svg>
+      <svg class="ic ico-moon"><use href="#i-moon"/></svg>
+    </button>
+
+    <!-- Chip tài khoản — auth.js bỏ thuộc tính hidden sau khi có phiên hợp lệ -->
+    <div class="user-chip" id="userChip" hidden>
+      <button class="user-btn" id="btnUser" type="button" aria-haspopup="menu">
+        <span class="user-avatar" id="userAvatar">?</span>
+        <span class="user-meta">
+          <span class="user-name" id="userName">—</span>
+          <span class="user-role" id="userRole">—</span>
+        </span>
+        <svg class="ic ic-xs user-caret"><use href="#i-chevron-down"/></svg>
+      </button>
+      <div class="user-menu" id="userMenu" role="menu" hidden>
+        <button type="button" data-act="data" role="menuitem">
+          <svg class="ic ic-sm"><use href="#i-folder"/></svg> Dữ liệu của tôi
+        </button>
+        <button type="button" data-act="password" role="menuitem">
+          <svg class="ic ic-sm"><use href="#i-lock"/></svg> Đổi mật khẩu
+        </button>
+        <button type="button" data-act="logout-all" role="menuitem">
+          <svg class="ic ic-sm"><use href="#i-shield"/></svg> Đăng xuất thiết bị khác
+        </button>
+        <hr />
+        <button type="button" data-act="logout" role="menuitem" class="danger">
+          <svg class="ic ic-sm"><use href="#i-arrow-right"/></svg> Đăng xuất
+        </button>
+      </div>
+    </div>
   </header>
 
   <div class="body">
 
-    <!-- ================= SIDEBAR ================= -->
+    <!-- ================= BẢNG BÊN ================= -->
     <aside class="sidebar" id="sidebar">
 
-      <div class="card tint">
+      <section class="card">
         <div class="card-head"><h3>Kho tri thức</h3></div>
         <div class="stat-grid">
           <div class="stat"><div class="v" id="statDocs">0</div><div class="k">Văn bản</div></div>
           <div class="stat"><div class="v" id="statChunks">0</div><div class="k">Điều khoản</div></div>
         </div>
-      </div>
+      </section>
 
-      <div class="card">
+      <section class="card">
         <div class="card-head">
           <h3>Văn bản pháp luật</h3>
-          <button class="icon-btn" id="btnReindex" title="Quét lại thư mục data/raw_laws">⟳</button>
+          <button class="icon-btn" id="btnReindex" title="Quét lại thư mục data/raw_laws"
+                  aria-label="Quét lại thư mục văn bản">
+            <svg class="ic ic-sm"><use href="#i-refresh"/></svg>
+          </button>
         </div>
 
         <label class="dropzone" id="dropzone">
           <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md,.html,.htm" hidden />
-          <div class="dz-icon">📑</div>
-          <div class="dz-text"><b>Chọn file</b> hoặc kéo thả vào đây</div>
-          <div class="dz-hint">PDF · DOCX · TXT · MD · HTML</div>
+          <svg class="ic ic-xl dz-icon"><use href="#i-upload-cloud"/></svg>
+          <span class="dz-text"><b>Chọn file</b> hoặc kéo thả vào đây</span>
+          <span class="dz-hint">PDF · DOCX · TXT · MD · HTML</span>
         </label>
 
         <div class="uploading" id="uploading" hidden>
@@ -70,10 +198,12 @@
         </div>
 
         <div class="doc-list" id="docList"></div>
-        <button class="btn block sm danger" id="btnClearAll" style="margin-top:11px">Xoá toàn bộ chỉ mục</button>
-      </div>
+        <button class="btn sm block danger" id="btnClearAll" style="margin-top:12px">
+          <svg class="ic ic-xs"><use href="#i-trash"/></svg> Xoá toàn bộ chỉ mục
+        </button>
+      </section>
 
-      <div class="card">
+      <section class="card">
         <div class="card-head"><h3>Cấu hình mô hình</h3></div>
         <label class="field">
           <span>Model Groq</span>
@@ -91,17 +221,19 @@
           <input type="checkbox" id="ragToggle" checked />
           <span>Bắt buộc trích dẫn từ kho văn bản (RAG)</span>
         </label>
-      </div>
+      </section>
     </aside>
 
-    <!-- ================= VIEW 1: TRA CỨU LUẬT ================= -->
+    <!-- ================= VIEW 1 · TRA CỨU LUẬT ================= -->
     <main class="view active" id="viewChat">
       <div class="chat-head">
         <div class="grow">
           <h2>Hỏi đáp pháp luật về vay vốn ngân hàng</h2>
           <p>Điều kiện vay · Hồ sơ tín dụng · Thẩm định · Tài sản bảo đảm · Lãi suất · Giải ngân · Xử lý nợ</p>
         </div>
-        <button class="btn sm" id="btnNewChat">＋ Hội thoại mới</button>
+        <button class="btn sm" id="btnNewChat">
+          <svg class="ic ic-xs"><use href="#i-plus"/></svg> Hội thoại mới
+        </button>
       </div>
 
       <div class="messages" id="messages"></div>
@@ -109,131 +241,227 @@
       <div class="composer">
         <div class="chips" id="chips"></div>
         <div class="composer-box">
-          <textarea id="input" rows="1" placeholder="Nhập câu hỏi pháp lý…  (Enter để gửi · Shift+Enter xuống dòng)"></textarea>
-          <button class="send" id="btnSend" title="Gửi">➤</button>
-          <button class="send stop" id="btnStop" title="Dừng" hidden>■</button>
+          <textarea id="input" rows="1"
+                    placeholder="Nhập câu hỏi pháp lý…  (Enter để gửi · Shift+Enter xuống dòng)"></textarea>
+          <button class="send" id="btnSend" title="Gửi" aria-label="Gửi câu hỏi">
+            <svg class="ic"><use href="#i-send"/></svg>
+          </button>
+          <button class="send stop" id="btnStop" title="Dừng" aria-label="Dừng" hidden>
+            <svg class="ic"><use href="#i-stop"/></svg>
+          </button>
         </div>
-        <div class="foot-note">
+        <p class="foot-note">
           Câu trả lời dựa trên văn bản bạn đã nạp. Luôn đối chiếu văn bản gốc trước khi áp dụng vào hồ sơ thực tế.
-        </div>
+        </p>
       </div>
     </main>
 
-    <!-- ================= VIEW 2: HỒ SƠ GỌI VỐN ================= -->
+    <!-- ================= VIEW 2 · HỒ SƠ VAY VỐN ================= -->
     <main class="view" id="viewDossier">
       <div class="ds">
 
         <div class="ds-main">
           <div class="ds-hero">
             <div class="ds-hero-top">
-              <div class="grow" style="flex:1">
+              <div class="grow">
                 <h2>Hồ sơ đề nghị cấp tín dụng</h2>
-                <p>Nhập thông tin khoản vay → hệ thống tra cứu quy định pháp luật, bổ sung danh mục
-                   hồ sơ và căn cứ pháp lý → xuất ra file PDF hoàn chỉnh.</p>
+                <p>Nhập thông tin khoản vay → hệ thống tra cứu quy định pháp luật, thẩm định giá trị
+                   doanh nghiệp và bổ sung căn cứ pháp lý → xuất ra file PDF hoàn chỉnh.</p>
               </div>
             </div>
 
             <div class="stepper">
               <button class="step active" data-step="1">
                 <span class="num">1</span>
-                <span class="lbl">Nhập thông tin<span class="sub">Khoản vay &amp; khách hàng</span></span>
+                <span class="lbl">Nhập hồ sơ<span class="sub">Thông tin &amp; giấy tờ</span></span>
               </button>
               <button class="step" data-step="2">
                 <span class="num">2</span>
-                <span class="lbl">Nội dung hồ sơ<span class="sub">Rà soát &amp; chỉnh sửa</span></span>
+                <span class="lbl">Agent lập hồ sơ<span class="sub">Thẩm định &amp; tra cứu luật</span></span>
               </button>
               <button class="step" data-step="3">
                 <span class="num">3</span>
+                <span class="lbl">Rà soát<span class="sub">Kết quả &amp; chỉnh sửa</span></span>
+              </button>
+              <button class="step" data-step="4">
+                <span class="num">4</span>
                 <span class="lbl">Xuất hồ sơ<span class="sub">Xem trước &amp; tải PDF</span></span>
               </button>
             </div>
           </div>
 
-          <!-- Bước 1: nhập liệu -->
+          <!-- Bước 1 · nhập liệu -->
           <div class="pane active" id="pane1">
             <div class="tip blue">
-              <span class="ti">💡</span>
-              <span>Chỉ cần điền những gì bạn đang có — để trống cũng không sao. Sau khi bấm
-                <b>Lập hồ sơ bằng AI</b>, hệ thống sẽ tra kho văn bản pháp luật để tự bổ sung
-                <b>danh mục hồ sơ phải nộp</b>, <b>căn cứ pháp lý</b> và <b>đánh giá rủi ro</b>.
-                Nếu đã trao đổi ở tab Tra cứu luật, nội dung đó cũng được dùng làm dữ liệu đầu vào.</span>
+              <span class="ti"><svg class="ic ic-sm"><use href="#i-bulb"/></svg></span>
+              <span>Điền thông tin và tích những giấy tờ bạn <b>đã có trong tay</b>. Hệ thống
+                <b>chỉ lập hồ sơ khi đủ các mục bắt buộc</b> — thiếu thì sẽ dừng và chỉ rõ cần bổ sung gì.
+                Khi đã đủ, Agent sẽ tra kho văn bản pháp luật, thẩm định giá trị doanh nghiệp,
+                tính khả năng trả nợ và dựng biểu đồ.</span>
             </div>
             <div id="intakeForm"></div>
           </div>
 
-          <!-- Bước 2: chi tiết -->
+          <!-- Bước 2 · Agent chạy quy trình -->
           <div class="pane" id="pane2">
-            <div class="tip">
-              <span class="ti">⚠️</span>
-              <span>Nội dung do AI soạn <b>bắt buộc phải được rà soát</b> trước khi nộp cho tổ chức tín dụng.
-                Mọi trường dưới đây đều sửa được, thêm/bớt dòng tuỳ ý.</span>
+            <div id="runIntro" class="run-intro">
+              <div class="run-hero">
+                <span class="run-hero-ico"><svg class="ic ic-xl"><use href="#i-bot"/></svg></span>
+                <div>
+                  <h3>Agent lập hồ sơ vay vốn</h3>
+                  <p>Quy trình 11 chặng: kiểm tra đầu vào → tra cứu pháp luật → phân tích tài chính →
+                     thẩm định giá trị doanh nghiệp → lập lịch trả nợ → soạn checklist → chấm điểm tín dụng.
+                     Bạn theo dõi được từng chặng ngay bên dưới.</p>
+                </div>
+              </div>
+              <div id="runGateBox"></div>
+              <button class="btn primary lg" id="btnRun">
+                <svg class="ic ic-sm"><use href="#i-play"/></svg> Bắt đầu lập hồ sơ
+              </button>
             </div>
+
+            <div id="runBlocked" hidden></div>
+
+            <div id="runPanel" hidden>
+              <div class="run-bar">
+                <div class="run-bar-top">
+                  <span class="run-status" id="runStatus">Đang chạy…</span>
+                  <span class="run-time" id="runTime">0,0s</span>
+                </div>
+                <div class="run-track"><i id="runFill"></i></div>
+              </div>
+              <div class="timeline" id="timeline"></div>
+              <div class="run-actions">
+                <button class="btn sm danger" id="btnRunStop">
+                  <svg class="ic ic-xs"><use href="#i-stop"/></svg> Dừng
+                </button>
+                <button class="btn sm" id="btnRunAgain" hidden>
+                  <svg class="ic ic-xs"><use href="#i-refresh"/></svg> Chạy lại
+                </button>
+                <button class="btn sm primary" id="btnRunNext" hidden>
+                  Xem kết quả <svg class="ic ic-xs"><use href="#i-arrow-right"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bước 3 · rà soát -->
+          <div class="pane" id="pane3">
+            <div class="tip">
+              <span class="ti"><svg class="ic ic-sm"><use href="#i-alert"/></svg></span>
+              <span>Nội dung do hệ thống lập <b>bắt buộc phải được rà soát</b> trước khi nộp cho tổ chức
+                tín dụng. Số liệu thẩm định là kết quả tính trên dữ liệu bạn cung cấp — hãy đối chiếu
+                với báo cáo tài chính và chứng thư thẩm định giá.</span>
+            </div>
+            <div id="appraisalView"></div>
             <div id="detailForm"></div>
           </div>
 
-          <!-- Bước 3: xuất -->
-          <div class="pane" id="pane3">
+          <!-- Bước 4 · xuất -->
+          <div class="pane" id="pane4">
             <div id="exportSummary"></div>
           </div>
         </div>
 
         <!-- Cột phải -->
         <aside class="ds-rail">
-          <div class="rail-sec">
+          <section class="rail-sec">
             <h4>Mức độ hoàn thiện</h4>
             <div class="meter">
               <div class="ring">
-                <svg width="96" height="96" viewBox="0 0 96 96">
-                  <circle cx="48" cy="48" r="41" fill="none" stroke="#e9eef5" stroke-width="9"/>
-                  <circle id="ringArc" cx="48" cy="48" r="41" fill="none" stroke="#2563eb" stroke-width="9"
-                          stroke-linecap="round" stroke-dasharray="258" stroke-dashoffset="258"/>
+                <svg width="104" height="104" viewBox="0 0 104 104">
+                  <circle class="ring-track" cx="52" cy="52" r="44" fill="none" stroke-width="8"/>
+                  <circle id="ringArc" cx="52" cy="52" r="44" fill="none" stroke="var(--brand)" stroke-width="8"
+                          stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/>
                 </svg>
                 <div class="val"><span id="ringPct">0%</span><small id="ringLbl">HOÀN THIỆN</small></div>
               </div>
-              <div class="meter-note" id="meterNote">Hãy bắt đầu bằng việc điền thông tin khách hàng và khoản vay.</div>
+              <p class="meter-note" id="meterNote">Hãy bắt đầu bằng việc điền thông tin khách hàng và khoản vay.</p>
               <div class="kpi">
                 <div><b id="kpiDocs">0</b><span>Hồ sơ</span></div>
                 <div><b id="kpiLegal">0</b><span>Căn cứ</span></div>
                 <div><b id="kpiRisk">0</b><span>Rủi ro</span></div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div class="rail-sec">
+          <section class="rail-sec" id="gateWrap">
+            <h4>Điều kiện lập hồ sơ</h4>
+            <div id="gateCard" class="gate-card">
+              <div class="gate-note">Đang kiểm tra…</div>
+            </div>
+          </section>
+
+          <section class="rail-sec">
             <h4>Thao tác</h4>
-            <button class="btn primary block" id="btnGen">✨ Lập hồ sơ bằng AI</button>
+            <button class="btn primary block" id="btnGen">
+              <svg class="ic ic-sm"><use href="#i-sparkles"/></svg> Lập hồ sơ bằng AI
+            </button>
             <div class="btn-row" style="margin-top:8px">
-              <button class="btn sm" id="btnPreview">👁 Xem trước</button>
-              <button class="btn sm navy" id="btnExport">⬇ Xuất PDF</button>
+              <button class="btn sm" id="btnPreview">
+                <svg class="ic ic-xs"><use href="#i-eye"/></svg> Xem trước
+              </button>
+              <button class="btn sm" id="btnExport">
+                <svg class="ic ic-xs"><use href="#i-download"/></svg> Xuất PDF
+              </button>
             </div>
             <div class="btn-row" style="margin-top:8px">
-              <button class="btn sm" id="btnImportJson">↥ Nhập</button>
-              <button class="btn sm" id="btnExportJson">↧ Lưu</button>
-              <button class="btn sm danger" id="btnReset">🗑 Xoá</button>
+              <button class="btn sm" id="btnImportJson">
+                <svg class="ic ic-xs"><use href="#i-upload"/></svg> Nhập
+              </button>
+              <button class="btn sm" id="btnExportJson">
+                <svg class="ic ic-xs"><use href="#i-download"/></svg> Lưu
+              </button>
+              <button class="btn sm danger" id="btnReset">
+                <svg class="ic ic-xs"><use href="#i-trash"/></svg> Xoá
+              </button>
             </div>
-          </div>
+            <button class="btn sm block gold" id="btnLoadSample" style="margin-top:8px">
+              <svg class="ic ic-xs"><use href="#i-star"/></svg> Nạp dữ liệu hồ sơ mẫu
+            </button>
+          </section>
 
-          <div class="rail-sec">
+          <section class="rail-sec">
             <h4>Tuỳ chọn xuất file</h4>
-            <label class="switch" style="margin-bottom:8px">
+            <label class="switch" style="margin-bottom:10px">
               <input type="checkbox" id="chkChecklist" checked /><span>Kèm danh mục hồ sơ phải nộp</span>
             </label>
-            <label class="switch">
+            <label class="switch" style="margin-bottom:10px">
               <input type="checkbox" id="chkLegal" checked /><span>Kèm mục căn cứ pháp lý</span>
             </label>
-          </div>
+            <label class="switch" style="margin-bottom:10px">
+              <input type="checkbox" id="chkAppraisal" checked /><span>Kèm thẩm định giá trị doanh nghiệp</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="chkCharts" checked /><span>Kèm biểu đồ minh hoạ</span>
+            </label>
+          </section>
 
-          <div class="rail-sec" id="genNoteWrap" hidden>
+          <section class="rail-sec" id="genNoteWrap" hidden>
             <h4>Trạng thái</h4>
             <div class="gen-note" id="genNote"></div>
-          </div>
+          </section>
 
-          <div class="rail-sec" id="railSrcWrap" hidden>
+          <section class="rail-sec" id="railSrcWrap" hidden>
             <h4>Căn cứ đã tra cứu</h4>
             <div class="mini-src" id="railSrc"></div>
-          </div>
+          </section>
         </aside>
 
+      </div>
+    </main>
+
+    <!-- ================= VIEW 3 · HỒ SƠ MẪU ================= -->
+    <main class="view" id="viewSample">
+      <div class="sample-wrap" id="sampleWrap">
+        <div class="empty" style="padding:64px">Đang tải hồ sơ mẫu…</div>
+      </div>
+    </main>
+
+    <!-- ================= VIEW 4 · DỮ LIỆU CỦA TÔI ================= -->
+    <main class="view" id="viewData">
+      <div class="data-wrap" id="dataWrap">
+        <div class="empty" style="padding:64px">Đang tải dữ liệu…</div>
       </div>
     </main>
 
@@ -243,6 +471,55 @@
 <div class="backdrop" id="backdrop"></div>
 <div class="toasts" id="toasts"></div>
 
+<!-- ================= MÀN HÌNH ĐĂNG NHẬP =================
+     Ẩn sẵn. auth.js chỉ hiện lên khi chưa có phiên hợp lệ. -->
+<div class="auth-shell" id="authShell" hidden>
+  <div class="auth-panel">
+    <a class="auth-brand" href="/">
+      <span class="mk"><svg class="ic ic-lg"><use href="#i-scale"/></svg></span>
+      <span class="tx">
+        <b>Trợ lý Pháp chế Tín dụng</b>
+        <span>Legal assistant for bank lending</span>
+      </span>
+    </a>
+
+    <div class="auth-tabs" id="authTabs">
+      <button type="button" class="auth-tab active" data-mode="login">Đăng nhập</button>
+      <button type="button" class="auth-tab" data-mode="register">Tạo tài khoản</button>
+    </div>
+
+    <form class="auth-form" id="authForm" autocomplete="on"></form>
+  </div>
+
+  <p class="auth-foot">
+    Công cụ tham khảo dành cho cán bộ pháp chế và tín dụng. Nội dung do hệ thống lập
+    phải được rà soát trước khi sử dụng chính thức.
+  </p>
+</div>
+
+<script src="/static/auth.js"></script>
 <script src="/static/app.js"></script>
+<script>
+/* Mở thẳng một khu vực qua đường dẫn, ví dụ /app#sample từ trang giới thiệu */
+(function () {
+  var v = (location.hash || "").replace(/[^a-z]/gi, "");
+  if (!v) return;
+  var btn = document.querySelector('.nav-btn[data-view="' + v + '"]');
+  if (btn) btn.click();
+})();
+
+/* Đổi giao diện sáng / tối — ghi nhớ lựa chọn trong trình duyệt */
+(function () {
+  var root = document.documentElement, btn = document.getElementById("btnTheme");
+  if (!btn) return;
+  btn.addEventListener("click", function () {
+    var t = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", t);
+    try { localStorage.setItem("tctd-theme", t); } catch (e) {}
+    var hero = document.querySelector(".ds-hero");
+    if (hero) root.style.setProperty("--ds-hero-h", hero.offsetHeight + "px");
+  });
+})();
+</script>
 </body>
 </html>

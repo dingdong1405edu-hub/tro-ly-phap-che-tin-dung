@@ -27,6 +27,8 @@ from reportlab.platypus import (
 )
 
 from ..schemas import Dossier
+from ..services.numbers import dinh_dang, doc_tien, rut_gon_tien
+from . import charts
 from .fonts import register_vietnamese_fonts
 
 # Bảng màu
@@ -55,6 +57,15 @@ def esc(text: Any) -> str:
     s = unicodedata.normalize("NFC", s)
     s = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     return s.replace("\n", "<br/>")
+
+
+def _gon(text: Any) -> str:
+    """Rút gọn số tiền cho các bảng nhiều cột: "4.090.000.000 VND" -> "4,09 tỷ VND"."""
+    s = "" if text is None else str(text).strip()
+    if not s:
+        return ""
+    so = doc_tien(s)
+    return rut_gon_tien(so) if so is not None and abs(so) >= 1e6 else s
 
 
 def _has(value: Any) -> bool:
@@ -172,10 +183,19 @@ def _styles(fs) -> dict[str, ParagraphStyle]:
 
 
 class DossierBuilder:
-    def __init__(self, dossier: Dossier, include_legal: bool = True, include_checklist: bool = True) -> None:
+    def __init__(
+        self,
+        dossier: Dossier,
+        include_legal: bool = True,
+        include_checklist: bool = True,
+        include_appraisal: bool = True,
+        include_charts: bool = True,
+    ) -> None:
         self.d = dossier
         self.include_legal = include_legal
         self.include_checklist = include_checklist
+        self.include_appraisal = include_appraisal
+        self.include_charts = include_charts
         self.fs = register_vietnamese_fonts()
         self.st = _styles(self.fs)
         self.section_no = 0
@@ -258,6 +278,74 @@ class DossierBuilder:
         tbl.setStyle(TableStyle(style))
         self.flow.append(tbl)
 
+    def sub(self, text: str) -> None:
+        self.flow.append(Paragraph(esc(text), self.st["h2"]))
+
+    def hop_nhan_manh(self, tieu_de: str, dong: list[tuple[str, str]], mau=LIGHT) -> None:
+        """Khối tô nền dùng cho kết luận thẩm định — thông tin quan trọng nhất trang."""
+        noi_dung = [Paragraph(f"<b>{esc(tieu_de)}</b>", self.st["h2"])]
+        for nhan, gia_tri in dong:
+            if not _has(gia_tri):
+                continue
+            noi_dung.append(
+                Paragraph(f"<b>{esc(nhan)}:</b> {esc(gia_tri)}", self.st["body"])
+            )
+        tbl = Table([[noi_dung]], colWidths=[USABLE_W])
+        tbl.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (-1, -1), mau),
+                ("BOX", (0, 0), (-1, -1), 0.6, BORDER),
+                ("LEFTPADDING", (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 7),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
+            ])
+        )
+        self.flow.append(KeepTogether(tbl))
+
+    # ---- biểu đồ
+
+    def _bang_bieu_do(self) -> dict:
+        if not hasattr(self, "_bd_cache"):
+            self._bd_cache = {b.ma: b for b in (self.d.bieu_do or [])}
+            self._bd_da_ve: set[str] = set()
+        return self._bd_cache
+
+    def bieu_do(self, ma: str) -> None:
+        """Chèn biểu đồ đúng chỗ nó thuộc về trong hồ sơ."""
+        if not self.include_charts:
+            return
+        spec = self._bang_bieu_do().get(ma)
+        if not spec or ma in self._bd_da_ve:
+            return
+        hinh = charts.ve(spec, USABLE_W, None, self.fs.regular, self.fs.bold)
+        if hinh is None:
+            return
+        self._bd_da_ve.add(ma)
+
+        khoi = [
+            Spacer(1, 6),
+            Paragraph(f"<b>Biểu đồ:</b> {esc(spec.tieu_de)}", self.st["h2"]),
+        ]
+        if _has(spec.mo_ta):
+            khoi.append(Paragraph(esc(spec.mo_ta), self.st["note"]))
+        khoi.append(Spacer(1, 3))
+        khoi.append(hinh)
+        if _has(spec.ghi_chu):
+            khoi.append(Paragraph(esc(spec.ghi_chu), self.st["note"]))
+        khoi.append(Spacer(1, 4))
+        self.flow.append(KeepTogether(khoi))
+
+    def bieu_do_con_lai(self) -> None:
+        if not self.include_charts:
+            return
+        con = [b for ma, b in self._bang_bieu_do().items() if ma not in self._bd_da_ve]
+        if not con:
+            return
+        self.section("Biểu đồ minh hoạ")
+        for spec in con:
+            self.bieu_do(spec.ma)
+
     # ---- các phần của hồ sơ
 
     def build_cover(self) -> None:
@@ -294,12 +382,27 @@ class DossierBuilder:
         ]
         self.kv_table(summary, label_w=0.34)
 
+        # Kết quả thẩm định đưa ngay lên trang bìa — đây là thứ người duyệt xem trước tiên
+        tham_dinh = []
+        if self.include_appraisal and d.tham_dinh_gia_tri.thuc_hien_duoc:
+            tham_dinh.append(
+                ("Giá trị doanh nghiệp sau thẩm định", d.tham_dinh_gia_tri.gia_tri_ket_luan_hien_thi)
+            )
+        if self.include_appraisal and d.ket_luan_tham_dinh.diem:
+            k = d.ket_luan_tham_dinh
+            tham_dinh.append(("Điểm tín dụng", f"{k.diem}/100 — xếp hạng {k.xep_hang} — rủi ro {k.muc_rui_ro}"))
+            if _has(k.de_xuat):
+                tham_dinh.append(("Đề xuất", k.de_xuat))
+        if tham_dinh:
+            self.flow.append(Spacer(1, 0.35 * cm))
+            self.kv_table(tham_dinh, label_w=0.34)
+
         if _has(d.tom_tat_phuong_an):
-            self.flow.append(Spacer(1, 0.5 * cm))
+            self.flow.append(Spacer(1, 0.45 * cm))
             self.flow.append(Paragraph("<b>Tóm tắt phương án</b>", self.st["h2"]))
             self.para(d.tom_tat_phuong_an)
 
-        self.flow.append(Spacer(1, 0.6 * cm))
+        self.flow.append(Spacer(1, 0.5 * cm))
         self.flow.append(Paragraph(DISCLAIMER, self.st["note"]))
         self.flow.append(PageBreak())
 
@@ -350,23 +453,35 @@ class DossierBuilder:
         self.section("Phương án sử dụng vốn và trả nợ")
 
         if _has(d.phuong_an_su_dung_von):
-            self.flow.append(Paragraph("1. Kế hoạch sử dụng vốn", self.st["h2"]))
+            self.sub("1. Kế hoạch sử dụng vốn")
             self.bullets(d.phuong_an_su_dung_von)
+            self.bieu_do("nguon_von")
 
         if _has(d.phuong_an_tra_no):
-            self.flow.append(Paragraph("2. Nguồn trả nợ và kế hoạch trả nợ", self.st["h2"]))
+            self.sub("2. Nguồn trả nợ và kế hoạch trả nợ")
             self.para(d.phuong_an_tra_no)
 
         if _has(d.dong_tien_du_kien):
-            self.flow.append(Paragraph("3. Dòng tiền dự kiến", self.st["h2"]))
+            self.sub("3. Dòng tiền dự kiến và lịch trả nợ")
+            self.para(
+                "Cột “Dòng tiền vào” là dòng tiền thuần từ hoạt động sau khi đã dành phần trả nợ "
+                "cho các khoản vay hiện hữu. Cột “Trả gốc”, “Trả lãi” và “Dư nợ cuối kỳ” tính riêng "
+                "cho khoản vay đang đề nghị."
+            )
+            self.flow.append(Spacer(1, 3))
             self.grid_table(
-                ["Kỳ", "Dòng tiền vào", "Dòng tiền ra", "Trả gốc", "Trả lãi", "Dư cuối kỳ"],
+                ["Kỳ", "Dòng tiền vào", "Trả gốc", "Trả lãi", "Tổng phải trả",
+                 "Còn lại", "Dư nợ cuối kỳ", "DSCR"],
                 [
-                    [r.ky, r.dong_tien_vao, r.dong_tien_ra, r.tra_goc, r.tra_lai, r.du_cuoi_ky]
+                    [r.ky, _gon(r.dong_tien_vao), _gon(r.tra_goc), _gon(r.tra_lai),
+                     _gon(r.dong_tien_ra), _gon(r.du_cuoi_ky), _gon(r.du_no_cuoi_ky), r.dscr]
                     for r in d.dong_tien_du_kien
                 ],
-                [1.3, 1.4, 1.4, 1.2, 1.2, 1.4],
+                [1.0, 1.5, 1.3, 1.3, 1.4, 1.3, 1.3, 0.9],
             )
+            self.bieu_do("tra_no")
+            self.bieu_do("dscr")
+            self.bieu_do("du_no")
 
     def build_financials(self) -> None:
         if not _has(self.d.tinh_hinh_tai_chinh):
@@ -377,6 +492,133 @@ class DossierBuilder:
             [[r.chi_tieu, r.nam_truoc, r.nam_hien_tai, r.du_kien] for r in self.d.tinh_hinh_tai_chinh],
             [2.6, 1.4, 1.4, 1.4],
         )
+        self.bieu_do("kqkd")
+
+    def build_ratios(self) -> None:
+        if not (self.include_appraisal and _has(self.d.chi_so_tai_chinh)):
+            return
+        co_so = [c for c in self.d.chi_so_tai_chinh if c.so is not None]
+        if not co_so:
+            return
+        self.section("Phân tích chỉ số tài chính")
+        self.para(
+            "Các chỉ số dưới đây do hệ thống tính trực tiếp từ bảng số liệu tài chính nêu trên. "
+            "Cột “Ngưỡng tham chiếu” là mức thông lệ trong thẩm định tín dụng, không phải quy định "
+            "bắt buộc của pháp luật."
+        )
+        self.flow.append(Spacer(1, 4))
+        self.grid_table(
+            ["Chỉ số", "Giá trị", "Ngưỡng tham chiếu", "Đánh giá", "Cách tính"],
+            [[c.ten, c.gia_tri, c.nguong, c.danh_gia, c.cong_thuc] for c in co_so],
+            [2.6, 1.1, 1.5, 1.1, 2.9],
+        )
+
+    def build_valuation(self) -> None:
+        v = self.d.tham_dinh_gia_tri
+        if not self.include_appraisal or not v or not (v.thuc_hien_duoc or _has(v.ly_do)):
+            return
+
+        self.section("Thẩm định giá trị doanh nghiệp")
+
+        if not v.thuc_hien_duoc:
+            self.para(v.ly_do or "Không đủ dữ liệu để thẩm định giá trị doanh nghiệp.")
+            return
+
+        self.hop_nhan_manh(
+            "Kết quả thẩm định",
+            [
+                ("Giá trị doanh nghiệp", f"{v.gia_tri_ket_luan_hien_thi}"),
+                ("Bằng chữ", v.gia_tri_bang_chu),
+                ("Khoảng giá trị hợp lý", f"{v.khoang_thap} — {v.khoang_cao}"),
+                ("Kỳ số liệu cơ sở", v.nam_co_so),
+            ],
+        )
+        self.flow.append(Spacer(1, 8))
+        self.bieu_do("dinh_gia")
+
+        self.sub("1. Các giả định sử dụng")
+        self.grid_table(
+            ["Giả định", "Giá trị", "Căn cứ"],
+            [[a.ten, a.gia_tri, a.can_cu] for a in v.gia_dinh],
+            [2.2, 1.6, 4.4],
+        )
+
+        self.sub("2. Kết quả theo từng phương pháp")
+        self.grid_table(
+            ["Phương pháp", "Giá trị", "Trọng số", "Diễn giải"],
+            [
+                [
+                    p.ten,
+                    p.gia_tri_hien_thi if p.ap_dung_duoc else "Không áp dụng",
+                    f"{dinh_dang(p.trong_so * 100, 0)}%" if p.ap_dung_duoc else "—",
+                    p.dien_giai or p.ly_do_khong_ap_dung,
+                ]
+                for p in v.phuong_phap
+            ],
+            [2.3, 1.7, 0.8, 4.4],
+        )
+
+        for p in v.phuong_phap:
+            if not (p.ap_dung_duoc and p.chi_tiet):
+                continue
+            self.sub(f"Chi tiết — {p.ten}")
+            self.grid_table(
+                ["Khoản mục", "Giá trị", "Ghi chú"],
+                [[c.khoan_muc, c.gia_tri, c.ghi_chu] for c in p.chi_tiet],
+                [3.2, 2.2, 3.4],
+            )
+
+        if _has(v.dcf_chi_tiet):
+            self.sub("3. Bảng chiết khấu dòng tiền")
+            self.grid_table(
+                ["Kỳ", "Dòng tiền tự do", "Hệ số chiết khấu", "Giá trị hiện tại"],
+                [[r.nam, r.dong_tien_tu_do, r.he_so_chiet_khau, r.gia_tri_hien_tai]
+                 for r in v.dcf_chi_tiet],
+                [1.4, 2.4, 1.6, 2.4],
+            )
+
+        if _has(v.nhan_xet):
+            self.sub("4. Nhận xét")
+            self.bullets(v.nhan_xet)
+        if _has(v.canh_bao):
+            self.sub("Lưu ý")
+            self.bullets(v.canh_bao)
+
+    def build_conclusion(self) -> None:
+        k = self.d.ket_luan_tham_dinh
+        if not self.include_appraisal or not k or not k.diem:
+            return
+        self.section("Kết luận thẩm định và đề xuất")
+
+        self.hop_nhan_manh(
+            "Chấm điểm tín dụng",
+            [
+                ("Điểm tổng hợp", f"{k.diem}/100"),
+                ("Xếp hạng", k.xep_hang),
+                ("Mức rủi ro", k.muc_rui_ro),
+                ("Đề xuất", k.de_xuat),
+                ("Hạn mức đề xuất", k.han_muc_de_xuat),
+            ],
+        )
+        self.flow.append(Spacer(1, 8))
+
+        if _has(k.thanh_phan_diem):
+            self.sub("1. Cấu phần điểm")
+            self.grid_table(
+                ["Cấu phần", "Điểm đạt", "Đánh giá", "Nội dung xét"],
+                [[t.ten, t.gia_tri, t.danh_gia, t.y_nghia] for t in k.thanh_phan_diem],
+                [2.4, 1.0, 1.2, 4.4],
+            )
+
+        if _has(k.cac_diem_manh):
+            self.sub("2. Điểm mạnh")
+            self.bullets(k.cac_diem_manh)
+        if _has(k.cac_diem_yeu):
+            self.sub("3. Điểm cần lưu ý")
+            self.bullets(k.cac_diem_yeu)
+        if _has(k.dieu_kien_kem_theo):
+            self.sub("4. Điều kiện kèm theo đề xuất")
+            self.bullets(k.dieu_kien_kem_theo)
 
     def build_collateral(self) -> None:
         if not _has(self.d.tai_san_bao_dam):
@@ -390,6 +632,7 @@ class DossierBuilder:
             ],
             [1.7, 2.3, 1.3, 1.9, 1.3],
         )
+        self.bieu_do("tsbd")
 
     def build_checklist(self) -> None:
         if not (self.include_checklist and _has(self.d.danh_muc_ho_so)):
@@ -475,11 +718,15 @@ class DossierBuilder:
         self.build_loan_request()
         self.build_plan()
         self.build_financials()
+        self.build_ratios()
+        self.build_valuation()
         self.build_collateral()
+        self.build_conclusion()
         self.build_checklist()
         self.build_legal()
         self.build_risks()
         self.build_recommendations()
+        self.bieu_do_con_lai()
         self.build_signature()
         self.flow.append(Spacer(1, 0.6 * cm))
         self.flow.append(Paragraph(DISCLAIMER, self.st["note"]))
@@ -489,8 +736,14 @@ class DossierBuilder:
 # ------------------------------------------------------------------- render
 
 
-def build_dossier_pdf(dossier: Dossier, include_legal: bool = True, include_checklist: bool = True) -> bytes:
-    builder = DossierBuilder(dossier, include_legal, include_checklist)
+def build_dossier_pdf(
+    dossier: Dossier,
+    include_legal: bool = True,
+    include_checklist: bool = True,
+    include_appraisal: bool = True,
+    include_charts: bool = True,
+) -> bytes:
+    builder = DossierBuilder(dossier, include_legal, include_checklist, include_appraisal, include_charts)
     story = builder.build()
 
     buf = io.BytesIO()

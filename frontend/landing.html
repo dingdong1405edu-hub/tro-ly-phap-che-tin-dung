@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trợ lý Pháp chế Tín dụng — Tra cứu luật vay vốn &amp; lập hồ sơ cấp tín dụng</title>
+<meta name="description" content="Hỏi đáp quy định pháp luật về vay vốn ngân hàng có trích dẫn tới từng Điều — Khoản, và lập bộ hồ sơ đề nghị cấp tín dụng kèm thẩm định giá trị doanh nghiệp." />
+<meta name="theme-color" content="#14315c" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)" />
+<link rel="icon" href="/static/favicon.svg" />
+
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("tctd-theme");
+    if (t !== "light" && t !== "dark")
+      t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" />
+<link rel="stylesheet" href="/static/base.css" />
+<link rel="stylesheet" href="/static/landing.css" />
+<style>body{overflow-x:hidden}</style>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3.2v17.6M7.5 20.8h9M3.4 7.1h3.1c2 0 4.3-.7 5.5-1.6 1.2.9 3.5 1.6 5.5 1.6h3.1"/><path d="m3.2 15.4 3-7.6 3 7.6a4.4 4.4 0 0 1-6 0Zm11.6 0 3-7.6 3 7.6a4.4 4.4 0 0 1-6 0Z"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8Z"/><path d="M14 3v5h5M8.8 12.8h6.4M8.8 16.4h4.2"/></symbol>
+<symbol id="i-files" viewBox="0 0 24 24"><path d="M15.5 7.5H9A2.5 2.5 0 0 0 6.5 10v9A2.5 2.5 0 0 0 9 21.5h6.5A2.5 2.5 0 0 0 18 19v-8Z"/><path d="M15.5 7.5V11H18M14 4.2A2.5 2.5 0 0 0 11.7 2.5H6A2.5 2.5 0 0 0 3.5 5v10c0 .9.5 1.7 1.2 2.1"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.2 7.4A2 2 0 0 1 5.2 5.4h3.5a2 2 0 0 1 1.6.8l1 1.4h7.5a2 2 0 0 1 2 2v8.4a2 2 0 0 1-2 2H5.2a2 2 0 0 1-2-2Z"/></symbol>
+<symbol id="i-clipboard" viewBox="0 0 24 24"><path d="M9 4.4H7.4A2.4 2.4 0 0 0 5 6.8v11.8a2.4 2.4 0 0 0 2.4 2.4h9.2a2.4 2.4 0 0 0 2.4-2.4V6.8a2.4 2.4 0 0 0-2.4-2.4H15"/><rect x="9" y="2.6" width="6" height="3.6" rx="1.2"/><path d="m9.6 13.8 1.9 1.9 3.5-4"/></symbol>
+<symbol id="i-checklist" viewBox="0 0 24 24"><path d="m3.4 6.5 1.5 1.5 2.9-3M3.4 12.5l1.5 1.5 2.9-3M3.4 18.5l1.5 1.5 2.9-3M11.5 6.2h9.1M11.5 12.2h9.1M11.5 18.2h9.1"/></symbol>
+<symbol id="i-bank" viewBox="0 0 24 24"><path d="M12 3 3 7.8h18ZM3 20.8h18M5 10.4v8.2M9.4 10.4v8.2M14.6 10.4v8.2M19 10.4v8.2"/></symbol>
+<symbol id="i-building" viewBox="0 0 24 24"><path d="M3.6 20.8V5.2a2 2 0 0 1 2-2h6.6a2 2 0 0 1 2 2v15.6M14.2 9.6h3.9a2 2 0 0 1 2 2v9.2M2.4 20.8h19.2M7 7.4h3.4M7 11.4h3.4M7 15.4h3.4"/></symbol>
+<symbol id="i-money" viewBox="0 0 24 24"><rect x="2.6" y="5.6" width="18.8" height="12.8" rx="2.2"/><circle cx="12" cy="12" r="2.7"/><path d="M6.2 10v4M17.8 10v4"/></symbol>
+<symbol id="i-trending" viewBox="0 0 24 24"><path d="m3.2 17.4 6.4-6.4 3.6 3.6 7.6-7.6"/><path d="M15.2 7h5.6v5.6"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3.4 3.6v16.8h17.2"/><path d="M7.4 16.6v-4M11.8 16.6V7.8M16.2 16.6v-6.4"/></symbol>
+<symbol id="i-calculator" viewBox="0 0 24 24"><rect x="5" y="2.8" width="14" height="18.4" rx="2.4"/><path d="M8.4 7h7.2M8.6 11.6h.02M12 11.6h.02M15.4 11.6h.02M8.6 15.1h.02M12 15.1h.02M15.4 15.1h.02M8.6 18.2h.02M12 18.2h.02M15.4 18.2h.02"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m20.4 20.4-4.8-4.8"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.6 12a8.6 8.6 0 1 1-2.5-6.1"/><path d="M20.8 3.4v5.4h-5.4"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.8" y="8.8" width="11.6" height="11.6" rx="2.2"/><path d="M5.4 15.2H5A1.6 1.6 0 0 1 3.4 13.6V5.2A1.6 1.6 0 0 1 5 3.6h8.4A1.6 1.6 0 0 1 15 5.2v.4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.7"/><path d="M4.6 20.4a7.4 7.4 0 0 1 14.8 0"/></symbol>
+<symbol id="i-paperclip" viewBox="0 0 24 24"><path d="M20.2 11.6 12 19.8a4.9 4.9 0 0 1-7-7l8.2-8.2a3.3 3.3 0 0 1 4.6 4.6l-8.1 8.1a1.6 1.6 0 0 1-2.3-2.3l7.5-7.4"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m10 3 1.9 5L17 9.9l-5.1 1.9L10 16.9 8.1 11.8 3 9.9 8.1 8Z"/><path d="m17.6 14.4.9 2.5 2.5.9-2.5.9-.9 2.5-.9-2.5-2.5-.9 2.5-.9Z"/></symbol>
+<symbol id="i-bot" viewBox="0 0 24 24"><rect x="3.6" y="8" width="16.8" height="12.4" rx="3.2"/><path d="M12 4.6V8"/><circle cx="12" cy="3.2" r="1.3"/><path d="M9.2 13.2v1.6M14.8 13.2v1.6M9.6 17.6h4.8M1.4 13v3M22.6 13v3"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.8 4.6 5.6v6.1c0 4.6 3 8.3 7.4 9.5 4.4-1.2 7.4-4.9 7.4-9.5V5.6Z"/><path d="m8.9 11.8 2.3 2.3 4-4.4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.6" y="10.2" width="14.8" height="10.4" rx="2.4"/><path d="M8.2 10.2V7.4a3.8 3.8 0 0 1 7.6 0v2.8"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 2.5 17.4a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9.2v4.6M12 17.2h.02"/></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.8"/><path d="m8 12.3 2.7 2.7L16.2 9.4"/></symbol>
+<symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.8"/><path d="m5.8 5.8 12.4 12.4"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.8"/><path d="M12 11.2v5.2M12 7.9h.02"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9.4 18.4h5.2M10.4 21.2h3.2"/><path d="M12 2.8a6.2 6.2 0 0 0-3.7 11.2c.7.5 1.1 1.3 1.2 2.1h5c.1-.8.5-1.6 1.2-2.1A6.2 6.2 0 0 0 12 2.8Z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.4 12S6 5.6 12 5.6 21.6 12 21.6 12 18 18.4 12 18.4 2.4 12 2.4 12Z"/><circle cx="12" cy="12" r="3.1"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3.4v12.2M7.4 11.2 12 15.8l4.6-4.6M4.4 20.4h15.2"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 20.6V8.4M7.4 12.8 12 8.2l4.6 4.6M4.4 3.6h15.2"/></symbol>
+<symbol id="i-upload-cloud" viewBox="0 0 24 24"><path d="M12 19.6v-8.2M8.6 14.4 12 11l3.4 3.4"/><path d="M7.2 17.6a4.7 4.7 0 0 1 .4-9.3 5.7 5.7 0 0 1 10.9 1.7 4.2 4.2 0 0 1-.5 8"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3.8 6.6h16.4M9.2 6.6V4.9a1.4 1.4 0 0 1 1.4-1.4h2.8a1.4 1.4 0 0 1 1.4 1.4v1.7"/><path d="m6.2 6.6.9 12.6a2 2 0 0 0 2 1.9h5.8a2 2 0 0 0 2-1.9l.9-12.6M10.4 10.8v6.4M13.6 10.8v6.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4.6v14.8M4.6 12h14.8"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m4.6 12.6 5 5L19.4 6.6"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10.6 13.4"/><path d="M21 3 14.4 21.2l-3.8-7.8L2.8 9.6Z"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.4" y="6.4" width="11.2" height="11.2" rx="2"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7.8 4.8 19 12 7.8 19.2Z"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M3.6 7h16.8M3.6 12h16.8M3.6 17h16.8"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.1"/><path d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.4 14.6A8.8 8.8 0 0 1 9.4 3.6a8.8 8.8 0 1 0 11 11Z"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.2 2.75 5.57 6.15.9-4.45 4.33 1.05 6.12L12 17.24l-5.5 2.88 1.05-6.12L3.1 9.67l6.15-.9Z"/></symbol>
+<symbol id="i-table" viewBox="0 0 24 24"><rect x="3.4" y="4.4" width="17.2" height="15.2" rx="2.2"/><path d="M3.4 9.6h17.2M9.6 9.6v10M15 9.6v10"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4.4 4.6a1.8 1.8 0 0 1 1.8-1.8h11.4a1.8 1.8 0 0 1 1.8 1.8v14.8H6.6a2.2 2.2 0 0 1-2.2-2.2Z"/><path d="M4.4 17.2a2.2 2.2 0 0 1 2.2-2.2h12.8M8.6 7.4h6.4"/></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6.4 9.4 5.6 5.6 5.6-5.6"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9.4 6.4 5.6 5.6-5.6 5.6"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M3.8 12h16M13.6 5.6 20 12l-6.4 6.4"/></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M20.2 12h-16M10.4 5.6 4 12l6.4 6.4"/></symbol>
+<symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.4"/></symbol>
+<symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-loader" viewBox="0 0 24 24"><path d="M12 3.2v3.6M12 17.2v3.6M4.8 4.8l2.5 2.5M16.7 16.7l2.5 2.5M3.2 12h3.6M17.2 12h3.6M4.8 19.2l2.5-2.5M16.7 7.3l2.5-2.5"/></symbol>
+<symbol id="i-external" viewBox="0 0 24 24"><path d="M14 3.6h6.4V10M20.4 3.6 11.2 12.8"/><path d="M18 14v4.6a2 2 0 0 1-2 2H5.6a2 2 0 0 1-2-2V8.2a2 2 0 0 1 2-2h4.6"/></symbol>
+<symbol id="i-quote" viewBox="0 0 24 24"><path d="M9.4 6.2c-2.9 1-4.6 3.4-4.6 6.6v5h5.4v-5.4H7.4c0-1.9.8-3.2 2.6-4Zm9.4 0c-2.9 1-4.6 3.4-4.6 6.6v5h5.4v-5.4h-2.8c0-1.9.8-3.2 2.6-4Z"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 8.4 4.4L12 11.8 3.6 7.4Z"/><path d="m3.6 12.2 8.4 4.4 8.4-4.4M3.6 16.8 12 21.2l8.4-4.4"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><circle cx="5.6" cy="5.6" r="2.6"/><circle cx="18.4" cy="18.4" r="2.6"/><path d="M8.4 5.6h6.2a3.4 3.4 0 0 1 0 6.8H9.4a3.4 3.4 0 0 0 0 6.8h6.2"/></symbol>
+<symbol id="i-terminal" viewBox="0 0 24 24"><rect x="2.8" y="4.2" width="18.4" height="15.6" rx="2.4"/><path d="m7.4 9.6 2.8 2.6-2.8 2.6M12.8 15.2h4"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3.4 8.4V6.2a2.8 2.8 0 0 1 2.8-2.8h2.2M15.6 3.4h2.2a2.8 2.8 0 0 1 2.8 2.8v2.2M20.6 15.6v2.2a2.8 2.8 0 0 1-2.8 2.8h-2.2M8.4 20.6H6.2a2.8 2.8 0 0 1-2.8-2.8v-2.2M3.4 12h17.2"/></symbol>
+</defs></svg>
+
+<!-- ================= ĐIỀU HƯỚNG ================= -->
+<header class="lnav">
+  <div class="wrap lnav-in">
+    <a class="lbrand" href="/">
+      <span class="mk"><svg class="ic ic-lg"><use href="#i-scale"/></svg></span>
+      <span class="tx">
+        <b>Trợ lý Pháp chế Tín dụng</b>
+        <span>Legal assistant for bank lending</span>
+      </span>
+    </a>
+
+    <nav class="lnav-links">
+      <a href="#nang-luc">Năng lực</a>
+      <a href="#quy-trinh">Quy trình</a>
+      <a href="#can-cu">Chống suy diễn</a>
+      <a href="#tham-dinh">Thẩm định</a>
+      <a href="#trien-khai">Triển khai</a>
+    </nav>
+
+    <div class="lnav-act">
+      <button class="icon-btn" id="btnTheme" type="button" title="Đổi giao diện sáng / tối"
+              aria-label="Đổi giao diện sáng / tối">
+        <svg class="ic ico-sun"><use href="#i-sun"/></svg>
+        <svg class="ic ico-moon"><use href="#i-moon"/></svg>
+      </button>
+      <a class="btn primary" href="/app">
+        Mở ứng dụng <svg class="ic ic-xs"><use href="#i-arrow-right"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Tra cứu pháp luật · Lập hồ sơ cấp tín dụng</span>
+      <h1>Trả lời về luật vay vốn, kèm <em>trích dẫn tới từng Điều</em>.</h1>
+      <p class="hero-lead">
+        Nạp chính bộ văn bản pháp luật của bạn. Hệ thống chỉ trả lời dựa trên đó, dẫn nguồn từng
+        khẳng định, rồi lập được bộ hồ sơ đề nghị cấp tín dụng hoàn chỉnh — trong đó mọi số liệu
+        thẩm định do Python tính bằng công thức tường minh, không do model sinh ra.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn primary lg" href="/app">
+          Mở ứng dụng <svg class="ic ic-sm"><use href="#i-arrow-right"/></svg>
+        </a>
+        <a class="btn lg" href="/app#sample">
+          <svg class="ic ic-sm"><use href="#i-star"/></svg> Xem hồ sơ mẫu
+        </a>
+      </div>
+
+      <p class="hero-note">
+        <svg class="ic ic-sm"><use href="#i-shield"/></svg>
+        Chạy trên hạ tầng của bạn · Văn bản không rời khỏi máy chủ bạn dựng
+      </p>
+    </div>
+
+    <!-- Minh hoạ một lượt hỏi đáp có dẫn nguồn -->
+    <div class="mock" aria-hidden="true">
+      <div class="mock-bar">
+        <span class="d"></span><span class="d"></span><span class="d"></span>
+        <span class="t">tra-cuu-luat · hybrid BM25 + ngữ nghĩa</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-q">
+          <span class="av"><svg class="ic ic-xs"><use href="#i-user"/></svg></span>
+          <span>Doanh nghiệp cần đáp ứng điều kiện gì để được tổ chức tín dụng cho vay?</span>
+        </div>
+
+        <div class="mock-a">
+          <span class="av"><svg class="ic ic-xs"><use href="#i-scale"/></svg></span>
+          <span class="tx">
+            Tổ chức tín dụng xem xét cho vay khi khách hàng đáp ứng <b>đồng thời</b> các điều kiện:
+            có <b>năng lực pháp luật dân sự</b><span class="mock-cite">1</span>, nhu cầu vốn dùng vào
+            <b>mục đích hợp pháp</b><span class="mock-cite">1</span>, có <b>phương án khả thi</b> và
+            khả năng tài chính trả nợ<span class="mock-cite">1</span>. Một số nhu cầu vốn bị cấm cho
+            vay<span class="mock-cite">2</span>.
+          </span>
+        </div>
+
+        <div class="mock-src">
+          <div class="h">
+            <span class="n">1</span>
+            <span class="c">Điều 7</span>
+            <span class="p">Chương II · Mục 1</span>
+          </div>
+          <p class="x">“Tổ chức tín dụng xem xét, quyết định cho vay khi khách hàng có đủ các điều
+            kiện sau đây: 1. Khách hàng là pháp nhân có năng lực pháp luật dân sự…”</p>
+        </div>
+
+        <div class="mock-src">
+          <div class="h">
+            <span class="n">2</span>
+            <span class="c">Điều 8</span>
+            <span class="p">Chương II · Mục 1</span>
+          </div>
+          <p class="x">“Tổ chức tín dụng không được cho vay đối với các nhu cầu vốn sau đây: 1. Để
+            thực hiện các hoạt động đầu tư kinh doanh thuộc ngành, nghề mà pháp luật cấm…”</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SỐ LIỆU ================= -->
+<div class="stats">
+  <div class="stat-cell"><b>11</b><span>chặng trong quy trình lập hồ sơ, theo dõi được từng chặng</span></div>
+  <div class="stat-cell"><b>3</b><span>phương pháp định giá doanh nghiệp chạy song song</span></div>
+  <div class="stat-cell"><b>12</b><span>chỉ số tài chính kèm ngưỡng tham chiếu và đánh giá</span></div>
+  <div class="stat-cell"><b>0</b><span>con số thẩm định do model sinh ra — tất cả là công thức</span></div>
+</div>
+
+<!-- ================= NĂNG LỰC ================= -->
+<section class="sec-pad" id="nang-luc">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Ba khối chức năng</span>
+      <h2>Một công cụ cho cả tra cứu lẫn lập hồ sơ</h2>
+      <p>Phần tra cứu trả lời câu hỏi pháp lý. Phần hồ sơ biến thông tin khoản vay thành bộ tài liệu
+         nộp được. Phần thẩm định tính số. Ba khối dùng chung một kho văn bản bạn nạp vào.</p>
+    </div>
+
+    <div class="cards">
+      <article class="fcard">
+        <span class="ico"><svg class="ic ic-lg"><use href="#i-search"/></svg></span>
+        <h3>Tra cứu có trích dẫn</h3>
+        <p>Hỏi bằng tiếng Việt. Mỗi khẳng định trong câu trả lời đều gắn số nguồn, bấm vào là nhảy
+           tới đúng đoạn luật gốc để đối chiếu.</p>
+        <ul>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Cắt chunk theo Phần / Chương / Mục / Điều / Khoản</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Tự nhận diện số hiệu văn bản, trả về dạng “Điều 7, Thông tư 39/2016/TT-NHNN”</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Tìm kiếm lai BM25 + vector, hợp nhất bằng RRF</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Nạp PDF · DOCX · TXT · MD · HTML, cảnh báo khi gặp bản scan</span></li>
+        </ul>
+      </article>
+
+      <article class="fcard">
+        <span class="ico"><svg class="ic ic-lg"><use href="#i-bot"/></svg></span>
+        <h3>Agent lập hồ sơ vay vốn</h3>
+        <p>Nhập thông tin khoản vay, Agent chạy 11 chặng và dựng ra bộ hồ sơ đề nghị cấp tín dụng
+           xuất được thành PDF.</p>
+        <ul>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Cổng chặn ở chặng 2 — thiếu mục bắt buộc là dừng, không sinh hồ sơ</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Danh mục giấy tờ phải nộp, mỗi mục kèm căn cứ pháp lý</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Lịch trả nợ, dòng tiền và DSCR từng kỳ</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Chặng cuối kiểm tra chéo số học giữa các phần</span></li>
+        </ul>
+      </article>
+
+      <article class="fcard">
+        <span class="ico"><svg class="ic ic-lg"><use href="#i-calculator"/></svg></span>
+        <h3>Thẩm định &amp; chấm điểm</h3>
+        <p>Định giá doanh nghiệp bằng ba phương pháp, chấm điểm tín dụng 0–100 và dựng biểu đồ từ
+           chính số liệu vừa tính.</p>
+        <ul>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Tài sản thuần · Chiết khấu dòng tiền · So sánh thị trường</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>Mọi giả định (Re, Rd, WACC, tăng trưởng) đều in ra kèm căn cứ</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>12 chỉ số tài chính có ngưỡng tham chiếu</span></li>
+          <li><svg class="ic ic-xs"><use href="#i-check"/></svg><span>7 biểu đồ dùng chung dữ liệu với bản PDF</span></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ================= QUY TRÌNH ================= -->
+<section class="sec-pad" id="quy-trinh">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Quy trình</span>
+      <h2>Từ tệp văn bản tới bộ hồ sơ PDF</h2>
+      <p>Bốn bước, không có bước nào chạy ngầm mà bạn không nhìn thấy kết quả trung gian.</p>
+    </div>
+
+    <div class="steps">
+      <div class="stp">
+        <span class="no">Bước 01</span>
+        <h4>Nạp bộ luật</h4>
+        <p>Kéo thả file vào ô upload, copy vào <code>data/raw_laws/</code>, hoặc chạy
+           <code>scripts/ingest.py</code>. Hệ thống tự lập chỉ mục lại.</p>
+      </div>
+      <div class="stp">
+        <span class="no">Bước 02</span>
+        <h4>Nhập hồ sơ</h4>
+        <p>Điền thông tin khách hàng, khoản vay, phương án dùng vốn và tích những giấy tờ đang có.
+           Cổng kiểm tra cập nhật theo thời gian thực.</p>
+      </div>
+      <div class="stp">
+        <span class="no">Bước 03</span>
+        <h4>Agent chạy</h4>
+        <p>11 chặng hiển thị trực tiếp: tra cứu căn cứ, phân tích chỉ số, định giá, lập lịch trả nợ,
+           chấm điểm, kiểm tra chéo.</p>
+      </div>
+      <div class="stp">
+        <span class="no">Bước 04</span>
+        <h4>Rà soát &amp; xuất</h4>
+        <p>Sửa trực tiếp mọi trường, xem trước rồi tải PDF. File cũng được lưu tại
+           <code>data/exports/</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHỐNG SUY DIỄN ================= -->
+<section class="dark-sec sec-pad" id="can-cu">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Cơ chế kiểm soát</span>
+      <h2>Thà không trả lời, còn hơn trả lời sai</h2>
+      <p>Với hồ sơ tín dụng, một con số bịa hoặc một điều khoản dẫn sai gây hậu quả thật.
+         Đây là những chỗ hệ thống chủ động tự chặn mình.</p>
+    </div>
+
+    <div class="guard">
+      <div class="guard-list">
+        <div class="guard-item">
+          <svg class="ic ic-sm"><use href="#i-check-circle"/></svg>
+          <div>
+            <b>Chỉ dùng ngữ cảnh được cấp</b>
+            <span>Prompt buộc model bám vào đoạn luật đã truy hồi. Truy hồi không ra kết quả thì
+              model được lệnh nói thẳng “kho văn bản chưa đủ căn cứ”.</span>
+          </div>
+        </div>
+        <div class="guard-item">
+          <svg class="ic ic-sm"><use href="#i-check-circle"/></svg>
+          <div>
+            <b>Chưa nạp văn bản thì đổi hẳn cách trả lời</b>
+            <span>Hệ thống chuyển sang prompt riêng, bắt buộc gắn nhãn cảnh báo và cấm trích dẫn số
+              hiệu như thể đã kiểm chứng.</span>
+          </div>
+        </div>
+        <div class="guard-item">
+          <svg class="ic ic-sm"><use href="#i-check-circle"/></svg>
+          <div>
+            <b>Cổng chặn khi hồ sơ chưa đủ</b>
+            <span>Chặng 2 dừng hẳn việc sinh hồ sơ nếu còn thiếu thông tin hoặc giấy tờ bắt buộc,
+              và chỉ rõ thiếu gì, vì sao cần, bổ sung thế nào.</span>
+          </div>
+        </div>
+        <div class="guard-item">
+          <svg class="ic ic-sm"><use href="#i-check-circle"/></svg>
+          <div>
+            <b>Số liệu do Python tính, không do model sinh</b>
+            <span>Chỉ số tài chính, định giá, lịch trả nợ, DSCR, điểm tín dụng đều là công thức
+              tường minh. Model chỉ được giao việc diễn giải kết quả đã tính.</span>
+          </div>
+        </div>
+        <div class="guard-item">
+          <svg class="ic ic-sm"><use href="#i-check-circle"/></svg>
+          <div>
+            <b>Cấm bịa danh tính</b>
+            <span>Trong phần hồ sơ, model bị cấm tự nghĩ ra tên người, số tiền, mã số thuế —
+              trường nào không có dữ liệu thì để trống.</span>
+          </div>
+        </div>
+        <div class="guard-item">
+          <svg class="ic ic-sm"><use href="#i-check-circle"/></svg>
+          <div>
+            <b>Kiểm tra chéo số học ở chặng cuối</b>
+            <span>Đối chiếu tổng khoản mục dùng vốn với tổng nguồn vốn, dư nợ với giá trị tài sản
+              bảo đảm — lệch quá ngưỡng là cảnh báo ngay trên giao diện.</span>
+          </div>
+        </div>
+      </div>
+
+      <blockquote class="quote">
+        <p>“Không đủ đầu vào thì không có đầu ra.”</p>
+        <cite>Nguyên tắc thiết kế của cổng kiểm tra ở chặng 2 — thà dừng lại và nói rõ còn thiếu gì,
+          còn hơn đưa ra một bộ hồ sơ nhìn thì đầy đủ nhưng phần lớn là do model lấp chỗ trống.</cite>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THẨM ĐỊNH ================= -->
+<section class="sec-pad" id="tham-dinh">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Định giá doanh nghiệp</span>
+      <h2>Ba phương pháp, một kết luận bình quân gia quyền</h2>
+      <p>Phương pháp nào thiếu dữ liệu thì bị loại và trọng số được phân bổ lại. Toàn bộ khối này
+         tính bằng Python thuần — cán bộ thẩm định kiểm chứng lại được từng con số.</p>
+    </div>
+
+    <div class="val3">
+      <article class="vcard">
+        <div class="top"><h4>Chiết khấu dòng tiền</h4><span class="w">45%</span></div>
+        <div class="meterline"><i style="width:45%"></i></div>
+        <p>Dự báo 5 năm cộng giá trị cuối kỳ theo Gordon, chiết khấu bằng WACC tính từ chính cơ cấu
+           vốn của khách hàng.</p>
+      </article>
+      <article class="vcard">
+        <div class="top"><h4>Tài sản thuần</h4><span class="w">30%</span></div>
+        <div class="meterline"><i style="width:30%"></i></div>
+        <p>Tổng tài sản trừ nợ phải trả, lấy từ đúng bảng số liệu tài chính khách hàng cung cấp
+           trong hồ sơ.</p>
+      </article>
+      <article class="vcard">
+        <div class="top"><h4>So sánh thị trường</h4><span class="w">25%</span></div>
+        <div class="meterline"><i style="width:25%"></i></div>
+        <p>Hệ số P/E và EV/EBITDA tham chiếu nhóm doanh nghiệp vừa và nhỏ chưa niêm yết.</p>
+      </article>
+    </div>
+
+    <div class="tip" style="margin-top:28px;max-width:860px">
+      <span class="ti"><svg class="ic ic-sm"><use href="#i-alert"/></svg></span>
+      <span>Kết quả định giá của hệ thống <b>không thay thế chứng thư của tổ chức thẩm định giá
+        độc lập</b>. Đây là công cụ tham khảo — mọi nội dung cần được cán bộ pháp chế / tín dụng
+        rà soát trước khi sử dụng chính thức.</span>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ================= TRIỂN KHAI ================= -->
+<section class="sec-pad" id="trien-khai">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Triển khai</span>
+      <h2>Ba lệnh là chạy được</h2>
+      <p>Không cần build front-end, không cần cơ sở dữ liệu. Chỉ cần Python và một API key của Groq.</p>
+    </div>
+
+    <div class="deploy">
+      <div class="codebox">
+        <div class="h"><svg class="ic ic-xs"><use href="#i-terminal"/></svg> PowerShell</div>
+<pre><span class="cm"># 1 — cài đặt (chỉ làm một lần)</span>
+.\run.ps1 -Setup
+
+<span class="cm"># 2 — mở .env vừa tạo, điền key từ console.groq.com/keys</span>
+GROQ_API_KEY=gsk_...
+
+<span class="cm"># 3 — chạy</span>
+.\run.ps1
+
+<span class="ok">→ http://127.0.0.1:8000</span></pre>
+      </div>
+
+      <div class="dlist">
+        <div class="dl-item">
+          <svg class="ic ic-sm"><use href="#i-lock"/></svg>
+          <div>
+            <b>Văn bản nằm trên máy chủ của bạn</b>
+            <span>Chỉ mục lưu tại <code>data/index/</code>, file gốc tại <code>data/raw_laws/</code>.
+              Chỉ đoạn ngữ cảnh cần thiết mới được gửi kèm câu hỏi tới Groq.</span>
+          </div>
+        </div>
+        <div class="dl-item">
+          <svg class="ic ic-sm"><use href="#i-zap"/></svg>
+          <div>
+            <b>Chạy được ngay, không cần cài thêm</b>
+            <span>Mặc định dùng BM25 + TF-IDF thuần NumPy. Muốn thêm khả năng hiểu ngữ nghĩa thì cài
+              <code>sentence-transformers</code>, hệ thống tự nhận và tính lại chỉ mục.</span>
+          </div>
+        </div>
+        <div class="dl-item">
+          <svg class="ic ic-sm"><use href="#i-layers"/></svg>
+          <div>
+            <b>Đổi model ngay trên giao diện</b>
+            <span>Danh sách model lấy trực tiếp từ tài khoản Groq. Chỉnh được số điều khoản đưa vào
+              ngữ cảnh và độ sáng tạo.</span>
+          </div>
+        </div>
+        <div class="dl-item">
+          <svg class="ic ic-sm"><use href="#i-route"/></svg>
+          <div>
+            <b>API mở, tài liệu tự sinh</b>
+            <span>Toàn bộ chức năng đều có endpoint riêng, kể cả quy trình 11 chặng dạng SSE.
+              Xem tại <code>/docs</code>.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="sec-pad tight">
+  <div class="wrap">
+    <div class="endcta">
+      <h2>Bắt đầu bằng việc nạp một Thông tư</h2>
+      <p>Thả một file vào ô upload là đã hỏi được. Hoặc mở hồ sơ mẫu để xem trước một bộ hồ sơ
+         hoàn chỉnh mà hệ thống dựng ra.</p>
+      <div class="row">
+        <a class="btn primary lg" href="/app">
+          Mở ứng dụng <svg class="ic ic-sm"><use href="#i-arrow-right"/></svg>
+        </a>
+        <a class="btn lg" href="/app#sample">
+          <svg class="ic ic-sm"><use href="#i-star"/></svg> Xem hồ sơ mẫu
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHÂN TRANG ================= -->
+<footer class="lfoot">
+  <div class="wrap lfoot-in">
+    <p class="disc">
+      <b>Trợ lý Pháp chế Tín dụng</b> — công cụ tham khảo dành cho cán bộ pháp chế và tín dụng.
+      Nội dung do hệ thống lập phải được rà soát trước khi sử dụng chính thức; kết quả định giá
+      không thay thế chứng thư của tổ chức thẩm định giá độc lập.
+    </p>
+    <nav class="lnk">
+      <a href="/app">Ứng dụng</a>
+      <a href="/app#sample">Hồ sơ mẫu</a>
+      <a href="/docs">Tài liệu API</a>
+      <a href="#can-cu">Cơ chế kiểm soát</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById("btnTheme");
+  if (!btn) return;
+  btn.addEventListener("click", function () {
+    var t = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", t);
+    try { localStorage.setItem("tctd-theme", t); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

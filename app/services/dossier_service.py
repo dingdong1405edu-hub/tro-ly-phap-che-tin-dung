@@ -36,6 +36,17 @@ LIST_PRIMARY_KEY = {
 OBJECT_FIELDS = {"ben_vay", "de_nghi_vay"}
 STR_LIST_FIELDS = {"phuong_an_su_dung_von", "khuyen_nghi"}
 
+# Các khối do hệ thống tự tính (thẩm định, biểu đồ, giấy tờ): giữ nguyên cấu trúc,
+# để chính pydantic xác thực chứ không ép về chuỗi như các trường văn bản.
+PASSTHROUGH_FIELDS = {
+    "ho_so_cung_cap",
+    "chi_so_tai_chinh",
+    "tham_dinh_gia_tri",
+    "ket_luan_tham_dinh",
+    "bieu_do",
+    "la_ho_so_mau",
+}
+
 
 # --------------------------------------------------------------- tiện ích
 
@@ -57,6 +68,9 @@ def _to_str(v: Any) -> str:
     if isinstance(v, bool):
         return "Có" if v else "Không"
     return str(v).strip()
+
+
+to_str = _to_str  # tên công khai cho các module khác dùng lại
 
 
 def _to_bool(v: Any, default: bool = True) -> bool:
@@ -83,6 +97,11 @@ def coerce_dossier(raw: dict[str, Any]) -> Dossier:
     clean: dict[str, Any] = {}
     for key, value in raw.items():
         if key not in Dossier.model_fields:
+            continue
+
+        if key in PASSTHROUGH_FIELDS:
+            if value is not None:
+                clean[key] = value
             continue
 
         if key in OBJECT_FIELDS:
@@ -119,10 +138,12 @@ def coerce_dossier(raw: dict[str, Any]) -> Dossier:
         logger.warning("JSON hồ sơ không khớp schema (%s) — dùng phần hợp lệ.", exc)
         dossier = Dossier()
         for k, v in clean.items():
+            # Xác thực từng trường một để bỏ đúng trường hỏng, giữ lại phần còn lại
             try:
-                setattr(dossier, k, v)
+                hop_le = Dossier.model_validate({k: v})
             except Exception:
                 continue
+            setattr(dossier, k, getattr(hop_le, k))
 
     if not dossier.ngay_lap:
         dossier.ngay_lap = date.today().strftime("%d/%m/%Y")

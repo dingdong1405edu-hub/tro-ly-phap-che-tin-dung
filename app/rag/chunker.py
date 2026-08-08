@@ -20,8 +20,12 @@ RE_MUC = re.compile(r"^\s*M[ỤU]C\s+(\d+|[IVXLCDM]+)\b[\.:]?\s*(.*)$", re.IGNOR
 RE_DIEU = re.compile(r"^\s*[ĐD]i[ềe]u\s+(\d+[a-zA-Z]?)\s*[\.:\-–]?\s*(.*)$", re.IGNORECASE)
 RE_KHOAN = re.compile(r"^\s*(\d{1,2})[\.\)]\s+(.*)$")
 
-RE_SO_HIEU = re.compile(r"\b(\d{1,4}\s*/\s*\d{4}\s*/\s*[A-ZĐ][A-ZĐ\-]{1,20})\b")
+RE_SO_HIEU = re.compile(r"\b(\d{1,4}\s*/\s*\d{4}\s*/\s*[A-ZĐ]+(?:\s*-\s*[A-ZĐ]+){0,3})\b")
 RE_SO_HIEU_LUAT = re.compile(r"\b(\d{1,3}\s*/\s*\d{4}\s*/\s*QH\d{1,2})\b")
+RE_NHAN_SO = re.compile(r"\bsố\s*:", re.IGNORECASE)
+RE_CAN_CU = re.compile(r"^\s*Căn\s+cứ\b", re.IGNORECASE)
+# Bóc tách PDF hay chèn khoảng trắng lạc vào giữa phần chữ của số hiệu: "55/2015/N Đ-CP"
+RE_HO_CHU = re.compile(r"(?<=[A-ZĐ])\s+(?=[A-ZĐ]\s*-)")
 
 LOAI_VAN_BAN = [
     "BỘ LUẬT",
@@ -83,17 +87,36 @@ def make_doc_id(file_name: str) -> str:
     return hashlib.sha1(file_name.encode("utf-8")).hexdigest()[:12]
 
 
+def _find_so_hieu(text: str, la_luat: bool) -> str:
+    """Tìm số hiệu của chính văn bản đang đọc.
+
+    Bỏ qua các dòng "Căn cứ ..." vì chúng dẫn số hiệu của văn bản khác — thông tư
+    nào cũng mở đầu bằng "Căn cứ Luật Ngân hàng Nhà nước Việt Nam số 46/2010/QH12".
+    Dòng có nhãn "Số:" là nơi ghi số hiệu thật nên được ưu tiên tuyệt đối.
+    """
+    lines = [RE_HO_CHU.sub("", ln) for ln in text.split("\n")[:80] if not RE_CAN_CU.match(ln)]
+    order = (RE_SO_HIEU_LUAT, RE_SO_HIEU) if la_luat else (RE_SO_HIEU, RE_SO_HIEU_LUAT)
+
+    for ln in lines:
+        if not RE_NHAN_SO.search(ln):
+            continue
+        for rx in order:
+            m = rx.search(ln)
+            if m:
+                return re.sub(r"\s+", "", m.group(1))
+
+    head = "\n".join(lines)
+    for rx in order:
+        m = rx.search(head) or rx.search(text[:8000])
+        if m:
+            return re.sub(r"\s+", "", m.group(1))
+    return ""
+
+
 def extract_doc_meta(text: str, file_name: str) -> DocMeta:
     """Đoán số hiệu, loại và tên văn bản từ phần đầu file."""
     head = "\n".join(text.split("\n")[:60])
     head_upper = head.upper()
-
-    so_hieu = ""
-    m = RE_SO_HIEU_LUAT.search(head) or RE_SO_HIEU.search(head)
-    if not m:
-        m = RE_SO_HIEU_LUAT.search(text[:8000]) or RE_SO_HIEU.search(text[:8000])
-    if m:
-        so_hieu = re.sub(r"\s+", "", m.group(1))
 
     loai = ""
     pos = len(head_upper) + 1
@@ -101,6 +124,8 @@ def extract_doc_meta(text: str, file_name: str) -> DocMeta:
         i = head_upper.find(lv)
         if i != -1 and i < pos:
             loai, pos = lv, i
+
+    so_hieu = _find_so_hieu(text, la_luat=loai in {"BỘ LUẬT", "LUẬT", "PHÁP LỆNH"})
 
     # Tên văn bản: dòng bắt đầu bằng "Quy định", "Về việc", hoặc dòng in hoa sau loại văn bản
     title = ""

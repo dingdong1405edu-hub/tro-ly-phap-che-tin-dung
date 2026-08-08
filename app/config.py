@@ -37,10 +37,26 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8000
 
+    # --- Tài khoản & phiên đăng nhập ---
+    session_ttl_days: int = 30
+    allow_registration: bool = True
+    # Cookie phiên: auto = chỉ bật cờ Secure khi đang chạy trên HTTPS.
+    cookie_secure: str = "auto"
+    # Tạo sẵn tài khoản quản trị khi CSDL còn trống (bỏ trống thì người đăng ký
+    # đầu tiên sẽ tự trở thành quản trị viên).
+    admin_username: str = "admin"
+    admin_password: str = ""
+    admin_email: str = ""
+
     # --- Đường dẫn ---
     @property
     def data_dir(self) -> Path:
         return ROOT_DIR / "data"
+
+    @property
+    def db_path(self) -> Path:
+        """CSDL tài khoản + dữ liệu người dùng. Nằm trong data/ nên đi theo volume."""
+        return self.data_dir / "app.db"
 
     @property
     def raw_dir(self) -> Path:
