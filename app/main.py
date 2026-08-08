@@ -70,6 +70,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def khong_cache_giao_dien(request, call_next):
+    """Bắt trình duyệt hỏi lại server mỗi lần mở trang.
+
+    Trước đây không gửi header cache nào, trình duyệt tự suy đoán và giữ bản
+    HTML/JS cũ — người dùng chạy bản chưa có màn hình đăng nhập nên mọi lời gọi
+    API đều trả 401. "no-cache" không cấm lưu, chỉ bắt kiểm tra lại; file không
+    đổi thì server trả 304 rất nhẹ nhờ ETag.
+    """
+    response = await call_next(request)
+    duong = request.url.path
+    if duong.startswith("/static/") or duong in ("/", "/app") or duong.endswith(".html"):
+        response.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return response
+
 # Tài khoản, phiên đăng nhập và dữ liệu riêng của từng người dùng
 app.include_router(auth_router)
 app.include_router(data_router)
